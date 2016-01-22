@@ -1,0 +1,12 @@
+E:\Roman\cs\WinPack\WinPack\bin\Debug\WinPack.exe.config
+E:\Roman\cs\WinPack\WinPack\bin\Debug\WinPack.exe
+E:\Roman\cs\WinPack\WinPack\bin\Debug\WinPack.pdb
+E:\Roman\cs\WinPack\WinPack\obj\Debug\WinPack.exe
+E:\Roman\cs\WinPack\WinPack\obj\Debug\WinPack.pdb
+D:\cs\WinPack\WinPack\bin\Debug\WinPack.exe.config
+D:\cs\WinPack\WinPack\obj\Debug\WinPack.exe
+D:\cs\WinPack\WinPack\obj\Debug\WinPack.pdb
+D:\cs\WinPack\WinPack\bin\Debug\WinPack.exe
+D:\cs\WinPack\WinPack\bin\Debug\WinPack.pdb
+D:\cs\WinPack\WinPack\obj\Debug\WinPack.csprojResolveAssemblyReference.cache
+E:\Roman\cs\WinPack\WinPack\obj\Debug\WinPack.csprojResolveAssemblyReference.cache

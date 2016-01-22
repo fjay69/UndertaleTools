@@ -1,0 +1,7 @@
+E:\Roman\cs\WinExtract\WinExtract\bin\Debug\WinExtract.exe.config
+D:\cs\WinExtract\WinExtract\bin\Debug\WinExtract.exe.config
+D:\cs\WinExtract\WinExtract\bin\Debug\WinExtract.exe
+D:\cs\WinExtract\WinExtract\bin\Debug\WinExtract.pdb
+D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.exe
+D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.pdb
+D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.csprojResolveAssemblyReference.cache
