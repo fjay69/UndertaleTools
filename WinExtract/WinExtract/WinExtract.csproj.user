@@ -4,6 +4,6 @@
     <StartArguments>D:\Veg_Ninja_Swipe_Demo1.win D:\ninja_test\</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>D:\Veg_Ninja_Swipe_Demo1.win D:\test_ninja</StartArguments>
+    <StartArguments>D:\Games\Undertale2\data.win D:\UT_data2\</StartArguments>
   </PropertyGroup>
 </Project>

@@ -10,3 +10,9 @@ D:\cs\WinPack\WinPack\bin\Debug\WinPack.exe
 D:\cs\WinPack\WinPack\bin\Debug\WinPack.pdb
 D:\cs\WinPack\WinPack\obj\Debug\WinPack.csprojResolveAssemblyReference.cache
 E:\Roman\cs\WinPack\WinPack\obj\Debug\WinPack.csprojResolveAssemblyReference.cache
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\bin\Debug\WinPack.exe.config
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\obj\Debug\WinPack.exe
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\obj\Debug\WinPack.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\bin\Debug\WinPack.exe
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\bin\Debug\WinPack.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\WinPack\WinPack\obj\Debug\WinPack.csprojResolveAssemblyReference.cache

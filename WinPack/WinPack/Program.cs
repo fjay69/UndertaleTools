@@ -77,7 +77,7 @@ namespace WinPack
                     {
                         string[] patch = File.ReadAllLines(output_folder + "translate.txt", System.Text.Encoding.UTF8);
                         lines = (uint)patch.Length;
-                        if (patch[(int)(lines - 1)].Length == 0) lines--;
+                        if (lines>0 && patch[(int)(lines - 1)].Length == 0) lines--;
                         bool patchNumber = true;
                         for (int f = 0; f < lines; f++)
                         {

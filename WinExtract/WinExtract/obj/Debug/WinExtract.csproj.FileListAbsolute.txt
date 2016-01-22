@@ -5,3 +5,9 @@ D:\cs\WinExtract\WinExtract\bin\Debug\WinExtract.pdb
 D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.exe
 D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.pdb
 D:\cs\WinExtract\WinExtract\obj\Debug\WinExtract.csprojResolveAssemblyReference.cache
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\bin\Debug\WinExtract.exe.config
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\obj\Debug\WinExtract.exe
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\obj\Debug\WinExtract.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\bin\Debug\WinExtract.exe
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\bin\Debug\WinExtract.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\WinExtract\WinExtract\obj\Debug\WinExtract.csprojResolveAssemblyReference.cache
