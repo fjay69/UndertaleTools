@@ -1,2 +1,0 @@
-winextract
-pause
