@@ -263,7 +263,7 @@ namespace WinExtract
                     xglyph.SetAttributeValue("w", bread.ReadUInt16());
                     xglyph.SetAttributeValue("h", bread.ReadUInt16());
                     xglyph.SetAttributeValue("shift", bread.ReadUInt16());
-                    xglyph.SetAttributeValue("offset", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("offset", bread.ReadUInt16());                    
                     xrange.Add(xglyph);
 
                     bread.BaseStream.Position = bacp;
@@ -319,6 +319,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
+            if (result.i > 16) result.i--; //What?
             bread.BaseStream.Position = bacup;
             return result;
         }
@@ -327,12 +328,13 @@ namespace WinExtract
         {
             long bacup = bread.BaseStream.Position;            
             bread.BaseStream.Position = str_offset-4;//???
-            byte[] strar = new byte[bread.ReadInt32()];
+            char[] strar = new char[bread.ReadInt32()];
             for (int f = 0; f < strar.Length; f++)
-                strar[f] = bread.ReadByte();
+                strar[f] = bread.ReadChar();
             
             bread.BaseStream.Position = bacup;
-            return System.Text.Encoding.ASCII.GetString(strar);//UTF-8?
+            //return System.Text.Encoding.UTF8.GetString(strar);//UTF-8?
+            return new string(strar);
         }
     }
 }

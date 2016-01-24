@@ -204,7 +204,7 @@ namespace WinPack
                         }
                         ushort x = 0;
                         ushort y = 0;                        
-                        ushort s = (ushort)(TXTR_count + f0+1);
+                        ushort s = (ushort)(TXTR_count + f0 + 1);//???
 
                         editSprite((uint)bwrite.BaseStream.Position, x, y, w, h, s);                        
                         bwrite.BaseStream.Position += 22;
