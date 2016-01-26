@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
+using System.Xml.Linq;
 
 namespace WinExtract
 {
@@ -13,7 +14,8 @@ namespace WinExtract
         static uint chunk_limit;        
         static uint FONT_offset;
         static uint FONT_limit;
-        static uint STRG_offset;        
+        static uint STRG_offset;
+        static bool translatale;        
 
         struct endFiles
         {
@@ -33,7 +35,7 @@ namespace WinExtract
 
         static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length < 2)
             {
                 System.Console.WriteLine("Usage: winextract <output .win file> <input folder>");
                 return;
@@ -41,9 +43,11 @@ namespace WinExtract
             string output_win = args[0];
             input_folder = args[1];
             if (input_folder[input_folder.Length - 1] != '\\') input_folder += '\\';
+            if (args.Length >= 3) translatale = (args[2] == "-tt");
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
+            Directory.CreateDirectory(input_folder + "FONT");
 
             uint chunk_offset = 0;
 
@@ -110,6 +114,7 @@ namespace WinExtract
                         bwrite.Write((byte)0x0D);
                         bwrite.Write((byte)0x0A);
                     }
+                    bwrite.Close();
                     long bacp = bread.BaseStream.Position;                    
                     recordFiles(collectFonts(input_folder), "FONT");
                     bread.BaseStream.Position = bacp;
@@ -182,10 +187,12 @@ namespace WinExtract
                 chunk_offset += chunk_size;
                 bread.BaseStream.Position = chunk_offset;
             }
-
-            File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
-            Directory.CreateDirectory(input_folder + "patch");
-            File.Open(input_folder + "patch\\patch.txt", FileMode.OpenOrCreate);
+            if (translatale)
+                File.Copy(input_folder + "STRG.txt", input_folder + "translate.txt");
+            else
+                File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
+            Directory.CreateDirectory(input_folder + "FONT_new");
+            File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
         }           
 
         static List<uint> collect_entries(bool fnt)
@@ -226,15 +233,54 @@ namespace WinExtract
             List<endFiles> filesToCreate = new List<endFiles>();
             for (int i = 0; i < entries.Count-1; i++)
             {
+                XDocument xmldoc = new XDocument();
+                XElement xfont = new XElement("font");
+                
                 uint offset = entries[i];
-                bread.BaseStream.Position = offset;                                
-                endFiles f1 = new endFiles();
+                bread.BaseStream.Position = offset;
                 string font_name = getSTRGEntry(bread.ReadUInt32());                
-                string font_family = getSTRGEntry(bread.ReadUInt32());
-                f1.name = ""+i+"_"+font_name+" ("+font_family+")";
-                f1.offset = offset;
-                f1.size = calculateFontSize(offset);
-                filesToCreate.Add(f1);
+                xfont.Add(new XElement("name", getSTRGEntry(bread.ReadUInt32())));
+                xfont.Add(new XElement("size", bread.ReadUInt32()));
+                xfont.Add(new XElement("bold", bread.ReadUInt32()));
+                xfont.Add(new XElement("italic", bread.ReadUInt32()));
+
+                XElement xrange = new XElement("ranges");
+                ushort lrange = bread.ReadUInt16();
+                bread.ReadUInt16();
+                ushort urange = bread.ReadUInt16();
+                bread.ReadUInt16();
+                xrange.Add(new XElement("range0",""+lrange+","+urange));
+                xfont.Add(xrange);
+                                
+                bread.BaseStream.Position += 12;
+                uint glyphCount = bread.ReadUInt32();
+                xrange = new XElement("glyphs");
+                for (uint g=0; g<glyphCount; g++)
+                {
+                    uint glyphOffset = bread.ReadUInt32();
+                    long bacp = bread.BaseStream.Position;
+                    bread.BaseStream.Position = glyphOffset;
+
+                    XElement xglyph = new XElement("glyph");
+                    xglyph.SetAttributeValue("character", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("x", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("y", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("w", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("h", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("shift", bread.ReadUInt16());
+                    xglyph.SetAttributeValue("offset", bread.ReadUInt16());                    
+                    xrange.Add(xglyph);
+
+                    bread.BaseStream.Position = bacp;
+                }                
+                xfont.Add(xrange);
+
+                xfont.Add(new XElement("image", ""+i+".png"));
+
+                xmldoc.Add(xfont);
+                StreamWriter tpag = new StreamWriter(input_folder + "FONT\\" + font_name + ".gmx", false, System.Text.Encoding.UTF8);
+                tpag.Write(xmldoc.ToString());
+                tpag.Close();
             }
             return filesToCreate;
         }
@@ -278,6 +324,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
+            if (result.i > 16) result.i--; //What?
             bread.BaseStream.Position = bacup;
             return result;
         }
@@ -286,12 +333,13 @@ namespace WinExtract
         {
             long bacup = bread.BaseStream.Position;            
             bread.BaseStream.Position = str_offset-4;//???
-            byte[] strar = new byte[bread.ReadInt32()];
+            char[] strar = new char[bread.ReadInt32()];
             for (int f = 0; f < strar.Length; f++)
-                strar[f] = bread.ReadByte();
+                strar[f] = bread.ReadChar();
             
             bread.BaseStream.Position = bacup;
-            return System.Text.Encoding.ASCII.GetString(strar);//UTF-8?
+            //return System.Text.Encoding.UTF8.GetString(strar);//UTF-8?
+            return new string(strar);
         }
     }
 }
