@@ -187,15 +187,12 @@ namespace WinExtract
                 chunk_offset += chunk_size;
                 bread.BaseStream.Position = chunk_offset;
             }
-<<<<<<< HEAD
+
             if (translatale)
                 File.Copy(input_folder + "STRG.txt", input_folder + "translate.txt");
             else
                 File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
-=======
 
-            File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
->>>>>>> origin/master
             Directory.CreateDirectory(input_folder + "FONT_new");
             File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
         }           
