@@ -13,7 +13,10 @@ namespace WinPack
         static uint form_size;
         static uint FONT_offset;
         static ushort TXTR_count;
+<<<<<<< HEAD
         static bool translatale;
+=======
+>>>>>>> origin/master
         static List<fontInfo> newFonts = new List<fontInfo>();
         static string[] chunks = new string[] { "GEN8","OPTN","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO" };
@@ -169,6 +172,7 @@ namespace WinPack
                     }
                     //Font strings
                     for (int f0 = 0; f0 < newFonts.Count; f0++)
+<<<<<<< HEAD
                     {
                         fontInfo fi = newFonts[f0];
                                                 
@@ -197,6 +201,36 @@ namespace WinPack
                     for (ushort f0 = 0; f0 < newFonts.Count; f0++)
                     {
                         fontInfo fi = newFonts[f0];
+=======
+                    {
+                        fontInfo fi = newFonts[f0];
+                                                
+                        string font_name = fi.filename;
+                        uint lineLen = (uint)font_name.Length;
+                        bwrite.Write(lineLen); chunk_size += 4;
+                        fi.filename_offset = (uint)bwrite.BaseStream.Position;
+                        for (int j = 0; j < lineLen; j++)
+                            bwrite.Write(font_name[j]);
+                        chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(font_name);
+                        bwrite.Write((byte)0); chunk_size += 1;
+                                                
+                        font_name = fi.data.Element("font").Element("name").Value;
+                        lineLen = (uint)font_name.Length;
+                        bwrite.Write(lineLen); chunk_size += 4;
+                        fi.fontname_offset = (uint)bwrite.BaseStream.Position;
+                        for (int j = 0; j < lineLen; j++)
+                            bwrite.Write(font_name[j]);
+                        chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(font_name);
+                        bwrite.Write((byte)0); chunk_size += 1;
+
+                        newFonts[f0] = fi;
+                    }
+
+                    //Fonts                    
+                    for (ushort f0 = 0; f0 < newFonts.Count; f0++)
+                    {
+                        fontInfo fi = newFonts[f0];
+>>>>>>> origin/master
 
                         uint bacp = (uint)bwrite.BaseStream.Position;
                         bwrite.BaseStream.Position = FONT_offset + 4 * (fi.id + 1);//!!!
