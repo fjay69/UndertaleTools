@@ -428,8 +428,8 @@ namespace WinPack
             bwrite.Write(font.filename_offset);
             bwrite.Write(font.fontname_offset);
             bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("size").Value));
-            bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("bold").Value));
-            bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("italic").Value));
+            bwrite.Write(font.data.Element("font").Element("bold").Value == "0" ? (uint)0 : (uint)1);
+            bwrite.Write(font.data.Element("font").Element("italic").Value == "0" ? (uint)0 : (uint)1);
             string[] range0 = font.data.Element("font").Element("ranges").Element("range0").Value.Split(',');
             bwrite.Write(Convert.ToUInt16(range0[0]));
             bwrite.Write((ushort)1);//?

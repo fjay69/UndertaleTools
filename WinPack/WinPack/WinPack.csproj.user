@@ -4,7 +4,7 @@
     <StartArguments>D:\UT_data2\ D:\Games\Undertale2\data.win -tt</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartArguments>D:\UT_data2\ D:\Games\Undertale2\data.win</StartArguments>
+    <StartArguments>D:\UT_data2\ D:\Games\Undertale2\data.win -tt</StartArguments>
   </PropertyGroup>
   <PropertyGroup>
     <PublishUrlHistory>publish\</PublishUrlHistory>
