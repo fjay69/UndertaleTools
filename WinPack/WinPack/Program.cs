@@ -465,7 +465,7 @@ namespace WinPack
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("w").Value));
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("h").Value));
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("shift").Value));
-                bwrite.Write(Convert.ToUInt16(glyph.Attribute("offset").Value));
+                bwrite.Write(Convert.ToInt16(glyph.Attribute("offset").Value));//sic!
                 bwrite.Write((ushort)0);
 
                 f0++;
