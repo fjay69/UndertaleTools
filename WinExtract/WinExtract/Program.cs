@@ -270,7 +270,7 @@ namespace WinExtract
                     xglyph.SetAttributeValue("w", bread.ReadUInt16());
                     xglyph.SetAttributeValue("h", bread.ReadUInt16());
                     xglyph.SetAttributeValue("shift", bread.ReadUInt16());
-                    xglyph.SetAttributeValue("offset", bread.ReadUInt16());                    
+                    xglyph.SetAttributeValue("offset", bread.ReadInt16());//sic!                    
                     xrange.Add(xglyph);
 
                     bread.BaseStream.Position = bacp;
