@@ -112,6 +112,7 @@ namespace WinPack
                     {
                         string[] patch = File.ReadAllLines(output_folder + "translate.txt", System.Text.Encoding.UTF8);
                         lines = (uint)patch.Length;
+                        if (lines != strg.Length) System.Console.WriteLine("Warning: STRG.txt has "+ strg.Length + " lines, translate.txt has "+lines+" lines");
                         if (lines>0 && patch[(int)(lines - 1)].Length == 0) lines--;
 
                         if (translatale) {
