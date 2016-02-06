@@ -405,6 +405,9 @@ namespace WinPack
 
             bwrite.BaseStream.Position = 4;
             bwrite.Write(form_size);
+
+            //bwrite.BaseStream.Position = 0x725D8C;//Debug mode
+            //bwrite.Write((byte)1);
         }
 
         static void editSprite(uint sprite_offset, ushort x, ushort y, ushort w, ushort h, ushort s) {

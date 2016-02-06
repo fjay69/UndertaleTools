@@ -15,7 +15,8 @@ namespace WinExtract
         static uint FONT_offset;
         static uint FONT_limit;
         static uint STRG_offset;
-        static bool translatale;        
+        static bool translatale;
+        static string[] fontNames;        
 
         struct endFiles
         {
@@ -233,6 +234,10 @@ namespace WinExtract
             bread.BaseStream.Position = FONT_offset;
             List<uint> entries = collect_entries(true);
             List<endFiles> filesToCreate = new List<endFiles>();
+
+            StreamWriter fontsIndex = new StreamWriter(input_folder + "FONT\\" + "fonts.txt", false, System.Text.Encoding.UTF8);
+            fontNames = new string[entries.Count];
+
             for (int i = 0; i < entries.Count-1; i++)
             {
                 XDocument xmldoc = new XDocument();
@@ -240,7 +245,10 @@ namespace WinExtract
                 
                 uint offset = entries[i];
                 bread.BaseStream.Position = offset;
-                string font_name = getSTRGEntry(bread.ReadUInt32());                
+                string font_name = getSTRGEntry(bread.ReadUInt32());
+                fontsIndex.WriteLine(i.ToString() + ";" + font_name+".font.gmx");
+                fontNames[i] = font_name;
+                               
                 xfont.Add(new XElement("name", getSTRGEntry(bread.ReadUInt32())));
                 xfont.Add(new XElement("size", bread.ReadUInt32()));
                 xfont.Add(new XElement("bold", bread.ReadUInt32()));
@@ -277,13 +285,14 @@ namespace WinExtract
                 }                
                 xfont.Add(xrange);
 
-                xfont.Add(new XElement("image", ""+i+".png"));
+                xfont.Add(new XElement("image", ""+font_name+".png"));
 
                 xmldoc.Add(xfont);
-                StreamWriter tpag = new StreamWriter(input_folder + "FONT\\" + font_name + ".gmx", false, System.Text.Encoding.UTF8);
+                StreamWriter tpag = new StreamWriter(input_folder + "FONT\\" + font_name + ".font.gmx", false, System.Text.Encoding.UTF8);
                 tpag.Write(xmldoc.ToString());
                 tpag.Close();
             }
+            fontsIndex.Close();
             return filesToCreate;
         }
 
@@ -309,7 +318,7 @@ namespace WinExtract
                 spriteInfo sprt = getSpriteInfo(bread.ReadUInt32());
                 Bitmap texture = new Bitmap(Image.FromFile(input_folder+"TXTR\\"+sprt.i+".png"));
                 Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat);
-                cropped.Save(input_folder + "FONT\\" + f + ".png");
+                cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
             }
 
             bread.BaseStream.Position = bacup;
