@@ -40,6 +40,7 @@ namespace WinPack
             if (output_folder[output_folder.Length-1]!='\\') output_folder += '\\';
             string input_win = args[1];
             if (args.Length >= 3) translatale = (args[2] == "-tt");
+            translatale = true;
             form_size = 0;
 
             string patch_path0 = output_folder + "FONT_new\\";

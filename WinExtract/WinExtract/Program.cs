@@ -45,6 +45,7 @@ namespace WinExtract
             input_folder = args[1];
             if (input_folder[input_folder.Length - 1] != '\\') input_folder += '\\';
             if (args.Length >= 3) translatale = (args[2] == "-tt");
+            translatale = true;
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
