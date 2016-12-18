@@ -104,17 +104,18 @@ namespace WinExtract
                 else if (chunk_name == "STRG")
                 {
                     STRG_offset = (uint)bread.BaseStream.Position;
-                    bwrite = new BinaryWriter(File.Open(input_folder + "STRG.txt", FileMode.Create));
+                    bwrite = new BinaryWriter(File.Open(input_folder + "original.strg", FileMode.Create));
                     uint strings = bread.ReadUInt32();
                     bread.BaseStream.Position += strings * 4;//Skip offsets
                     for (uint i = 0; i < strings; i++)
                     {
-                        uint string_size = bread.ReadUInt32()+1;                         
+                        uint string_size = bread.ReadUInt32();//00 after string
+                        bwrite.Write(string_size);
                         for (uint j = 0; j < string_size; j++)
                             bwrite.Write(bread.ReadByte());
-                        bwrite.BaseStream.Position--;
-                        bwrite.Write((byte)0x0D);
-                        bwrite.Write((byte)0x0A);
+                        bread.BaseStream.Position++;
+                        //bwrite.Write((byte)0x0D);
+                        //bwrite.Write((byte)0x0A);
                     }
                     bwrite.Close();
                     long bacp = bread.BaseStream.Position;                    
@@ -191,7 +192,8 @@ namespace WinExtract
             }
 
             if (translatale)
-                File.Copy(input_folder + "STRG.txt", input_folder + "translate.txt");
+                if(!File.Exists(input_folder + "translate.strg"))
+                File.Copy(input_folder + "original.strg", input_folder + "translate.strg");
             else
                 File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
 
@@ -345,13 +347,13 @@ namespace WinExtract
         {
             long bacup = bread.BaseStream.Position;            
             bread.BaseStream.Position = str_offset-4;//???
-            char[] strar = new char[bread.ReadInt32()];
-            for (int f = 0; f < strar.Length; f++)
-                strar[f] = bread.ReadChar();
             
+            uint string_size = bread.ReadUInt32();
+            byte[] bytes = new byte[string_size];
+            for (uint j = 0; j < string_size; j++)
+                bytes[j] = bread.ReadByte();
             bread.BaseStream.Position = bacup;
-            //return System.Text.Encoding.UTF8.GetString(strar);//UTF-8?
-            return new string(strar);
+            return System.Text.Encoding.UTF8.GetString(bytes);
         }
     }
 }

@@ -15,7 +15,7 @@ namespace WinPack
         static ushort TXTR_count;
         static bool translatale;
         static List<fontInfo> newFonts = new List<fontInfo>();
-        static string[] chunks = new string[] { "GEN8","OPTN","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
+        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO" };
 
         struct fontInfo {
@@ -67,7 +67,14 @@ namespace WinPack
 
             for (int i=0; i<chunks.Length; i++)
             {
+                
                 string chunk_name = chunks[i];
+
+                if (chunk_name != "STRG" && chunk_name != "AUDO" && chunk_name != "FONT" && chunk_name != "TXTR") {
+                    if (!File.Exists(output_folder + "CHUNK\\" + chunk_name + ".chunk"))
+                        continue;
+                }
+
                 uint chunk_size = 0;
                 bwrite.Write(System.Text.Encoding.ASCII.GetBytes(chunk_name));                
                 uint chunk_offset = (uint)bwrite.BaseStream.Position;                
@@ -75,9 +82,10 @@ namespace WinPack
                 form_size += 8;                
                                 
                 if (chunk_name == "STRG")
-                {                    
-                    string[] strg = File.ReadAllLines(output_folder + "STRG.txt", System.Text.Encoding.UTF8);
-                    uint lines = (uint)strg.Length;
+                {
+                    List<string> strg = createStrgList(output_folder + "original.strg");
+                    //string[] strg = File.ReadAllLines(output_folder + "original.strg", System.Text.Encoding.UTF8);
+                    uint lines = (uint)strg.Count;
                     if (strg[(int)(lines - 1)].Length == 0) lines--;
                                         
                     bwrite.Write(lines);
@@ -109,11 +117,12 @@ namespace WinPack
                     }
 
                     //Edited lines                    
-                    if (File.Exists(output_folder + "translate.txt"))
+                    if (File.Exists(output_folder + "translate.strg"))
                     {
-                        string[] patch = File.ReadAllLines(output_folder + "translate.txt", System.Text.Encoding.UTF8);
-                        lines = (uint)patch.Length;
-                        if (lines != strg.Length) System.Console.WriteLine("Warning: STRG.txt has "+ strg.Length + " lines, translate.txt has "+lines+" lines");
+                        List<string> patch = createStrgList(output_folder + "translate.strg");
+                        //string[] patch = File.ReadAllLines(output_folder + "translate.strg", System.Text.Encoding.UTF8);
+                        lines = (uint)patch.Count;
+                        if (lines != strg.Count) System.Console.WriteLine("Warning: original.strg has "+ strg.Count + " lines, translate.strg has "+lines+" lines");
                         if (lines>0 && patch[(int)(lines - 1)].Length == 0) lines--;
 
                         if (translatale) {
@@ -481,6 +490,25 @@ namespace WinPack
         static uint calculateFontSize(uint glyph_count)
         {           
             return 44 + glyph_count * 20;
+        }
+
+        static List<string> createStrgList(string fileName)
+        {
+            List<string> strg = new List<string>();
+
+            bread = new BinaryReader(File.Open(fileName, FileMode.Open));
+            long filelength = bread.BaseStream.Length;
+            while (bread.BaseStream.Position < filelength - 1)
+            {
+                uint string_size = bread.ReadUInt32();
+                byte[] bytes = new byte[string_size];
+                for (uint j = 0; j < string_size; j++)
+                    bytes[j] = bread.ReadByte();
+                strg.Add(System.Text.Encoding.UTF8.GetString(bytes));
+            }
+            bread.Close();
+
+            return strg;
         }
     }
 }

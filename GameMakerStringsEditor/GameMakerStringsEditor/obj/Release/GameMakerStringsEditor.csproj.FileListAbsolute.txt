@@ -1,0 +1,17 @@
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.exe.config
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.exe
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.pdb
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.Form1.resources
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.Properties.Resources.resources
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.csproj.GenerateResource.Cache
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.exe
+D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.exe.config
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.exe
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.exe
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\bin\Release\GameMakerStringsEditor.pdb
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.csprojResolveAssemblyReference.cache
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.Form1.resources
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.Properties.Resources.resources
+D:\GitHub\UndertaleTools\UndertaleTools\GameMakerStringsEditor\GameMakerStringsEditor\obj\Release\GameMakerStringsEditor.csproj.GenerateResource.Cache
