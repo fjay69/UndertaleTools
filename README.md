@@ -5,4 +5,4 @@ Command line only.
 
 NET 4.5 required.
 
-See wiki for details.
+Credits to Nishant S for multiline editable ListBox
