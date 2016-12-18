@@ -1,9 +1,0 @@
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Debug\GameMakerStringsEditor.exe.config
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Debug\GameMakerStringsEditor.exe
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\bin\Debug\GameMakerStringsEditor.pdb
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.csprojResolveAssemblyReference.cache
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.Form1.resources
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.Properties.Resources.resources
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.csproj.GenerateResource.Cache
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.exe
-D:\cs\GameMakerStringsEditor\GameMakerStringsEditor\obj\Debug\GameMakerStringsEditor.pdb
