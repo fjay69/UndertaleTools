@@ -1,0 +1,13 @@
+Tested on "Risk of Rain".
+
+Program was changed for using multi-lined strings.
+Extracted string placed in special file with *.strg extention.
+You can't simply edit it with notepad.
+Use special tool "GameMaker string editor".
+
+1. Open the file.
+2. Use text box to find specific string.
+3. Right mouse click or F2 to start editing.
+4. Ctrl+Enter to put line breaker.
+5. Click to another place to confirm changes.
+6. Save file.

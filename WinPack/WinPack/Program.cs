@@ -13,8 +13,9 @@ namespace WinPack
         static uint form_size;
         static uint FONT_offset;
         static ushort TXTR_count;
+        static bool translatale;
         static List<fontInfo> newFonts = new List<fontInfo>();
-        static string[] chunks = new string[] { "GEN8","OPTN","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
+        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO" };
 
         struct fontInfo {
@@ -30,7 +31,7 @@ namespace WinPack
         
         static void Main(string[] args)
         {
-            if (args.Length != 2)
+            if (args.Length < 2)
             {
                 System.Console.WriteLine("Usage: winpack <output folder> <input .win file>");
                 return;
@@ -38,6 +39,8 @@ namespace WinPack
             string output_folder = args[0];
             if (output_folder[output_folder.Length-1]!='\\') output_folder += '\\';
             string input_win = args[1];
+            if (args.Length >= 3) translatale = (args[2] == "-tt");
+            translatale = true;
             form_size = 0;
 
             string patch_path0 = output_folder + "FONT_new\\";
@@ -64,7 +67,14 @@ namespace WinPack
 
             for (int i=0; i<chunks.Length; i++)
             {
+                
                 string chunk_name = chunks[i];
+
+                if (chunk_name != "STRG" && chunk_name != "AUDO" && chunk_name != "FONT" && chunk_name != "TXTR") {
+                    if (!File.Exists(output_folder + "CHUNK\\" + chunk_name + ".chunk"))
+                        continue;
+                }
+
                 uint chunk_size = 0;
                 bwrite.Write(System.Text.Encoding.ASCII.GetBytes(chunk_name));                
                 uint chunk_offset = (uint)bwrite.BaseStream.Position;                
@@ -72,9 +82,10 @@ namespace WinPack
                 form_size += 8;                
                                 
                 if (chunk_name == "STRG")
-                {                    
-                    string[] strg = File.ReadAllLines(output_folder + "STRG.txt", System.Text.Encoding.UTF8);
-                    uint lines = (uint)strg.Length;
+                {
+                    List<string> strg = createStrgList(output_folder + "original.strg");
+                    //string[] strg = File.ReadAllLines(output_folder + "original.strg", System.Text.Encoding.UTF8);
+                    uint lines = (uint)strg.Count;
                     if (strg[(int)(lines - 1)].Length == 0) lines--;
                                         
                     bwrite.Write(lines);
@@ -106,28 +117,28 @@ namespace WinPack
                     }
 
                     //Edited lines                    
-                    if (File.Exists(output_folder + "translate.txt"))
+                    if (File.Exists(output_folder + "translate.strg"))
                     {
-                        string[] patch = File.ReadAllLines(output_folder + "translate.txt", System.Text.Encoding.UTF8);
-                        lines = (uint)patch.Length;
+                        List<string> patch = createStrgList(output_folder + "translate.strg");
+                        //string[] patch = File.ReadAllLines(output_folder + "translate.strg", System.Text.Encoding.UTF8);
+                        lines = (uint)patch.Count;
+                        if (lines != strg.Count) System.Console.WriteLine("Warning: original.strg has "+ strg.Count + " lines, translate.strg has "+lines+" lines");
                         if (lines>0 && patch[(int)(lines - 1)].Length == 0) lines--;
-                        bool patchNumber = true;
-                        for (int f = 0; f < lines; f++)
-                        {
-                            string oneLine = patch[f];
-                            if (oneLine.IndexOf("//") == 0) continue;
 
-                            if (patchNumber)
+                        if (translatale) {
+                            for (int f = 0; f < lines; f++)
                             {
-                                uint lineN = System.Convert.ToUInt32(oneLine);
+                                string oneLine = patch[f];
+                                if (strg[f] == oneLine) continue;
+
+                                uint lineN = (uint)(f+1);
                                 uint line_offset = chunk_offset + (lineN + 1) * 4;
 
                                 uint line_off = (uint)bwrite.BaseStream.Position;
                                 bwrite.BaseStream.Position = line_offset;
                                 bwrite.Write(line_off);
                                 bwrite.BaseStream.Position = line_off;
-                            }
-                            else {
+
                                 uint lineLen = (uint)oneLine.Length;
                                 bwrite.Write(lineLen); chunk_size += 4;
                                 for (int j = 0; j < lineLen; j++)
@@ -135,7 +146,33 @@ namespace WinPack
                                 chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(oneLine);
                                 bwrite.Write((byte)0); chunk_size += 1;
                             }
-                            patchNumber = !patchNumber;
+                        } else {
+                            bool patchNumber = true;
+                            for (int f = 0; f < lines; f++)
+                            {
+                                string oneLine = patch[f];
+                                if (oneLine.IndexOf("//") == 0) continue;
+
+                                if (patchNumber)
+                                {
+                                    uint lineN = System.Convert.ToUInt32(oneLine);
+                                    uint line_offset = chunk_offset + (lineN + 1) * 4;
+
+                                    uint line_off = (uint)bwrite.BaseStream.Position;
+                                    bwrite.BaseStream.Position = line_offset;
+                                    bwrite.Write(line_off);
+                                    bwrite.BaseStream.Position = line_off;
+                                }
+                                else {
+                                    uint lineLen = (uint)oneLine.Length;
+                                    bwrite.Write(lineLen); chunk_size += 4;
+                                    for (int j = 0; j < lineLen; j++)
+                                        bwrite.Write(oneLine[j]);
+                                    chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(oneLine);
+                                    bwrite.Write((byte)0); chunk_size += 1;
+                                }
+                                patchNumber = !patchNumber;
+                            }
                         }
                     }
                     else {
@@ -143,6 +180,32 @@ namespace WinPack
                     }
                     //Font strings
                     for (int f0 = 0; f0 < newFonts.Count; f0++)
+                    {
+                        fontInfo fi = newFonts[f0];
+                                                
+                        string font_name = fi.filename;
+                        uint lineLen = (uint)font_name.Length;
+                        bwrite.Write(lineLen); chunk_size += 4;
+                        fi.filename_offset = (uint)bwrite.BaseStream.Position;
+                        for (int j = 0; j < lineLen; j++)
+                            bwrite.Write(font_name[j]);
+                        chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(font_name);
+                        bwrite.Write((byte)0); chunk_size += 1;
+                                                
+                        font_name = fi.data.Element("font").Element("name").Value;
+                        lineLen = (uint)font_name.Length;
+                        bwrite.Write(lineLen); chunk_size += 4;
+                        fi.fontname_offset = (uint)bwrite.BaseStream.Position;
+                        for (int j = 0; j < lineLen; j++)
+                            bwrite.Write(font_name[j]);
+                        chunk_size += (uint)System.Text.Encoding.UTF8.GetByteCount(font_name);
+                        bwrite.Write((byte)0); chunk_size += 1;
+
+                        newFonts[f0] = fi;
+                    }
+
+                    //Fonts                    
+                    for (ushort f0 = 0; f0 < newFonts.Count; f0++)
                     {
                         fontInfo fi = newFonts[f0];
                                                 
@@ -352,6 +415,9 @@ namespace WinPack
 
             bwrite.BaseStream.Position = 4;
             bwrite.Write(form_size);
+
+            //bwrite.BaseStream.Position = 0x725D8C;//Debug mode
+            //bwrite.Write((byte)1);
         }
 
         static void editSprite(uint sprite_offset, ushort x, ushort y, ushort w, ushort h, ushort s) {
@@ -376,8 +442,8 @@ namespace WinPack
             bwrite.Write(font.filename_offset);
             bwrite.Write(font.fontname_offset);
             bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("size").Value));
-            bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("bold").Value));
-            bwrite.Write(Convert.ToUInt32(font.data.Element("font").Element("italic").Value));
+            bwrite.Write(font.data.Element("font").Element("bold").Value == "0" ? (uint)0 : (uint)1);
+            bwrite.Write(font.data.Element("font").Element("italic").Value == "0" ? (uint)0 : (uint)1);
             string[] range0 = font.data.Element("font").Element("ranges").Element("range0").Value.Split(',');
             bwrite.Write(Convert.ToUInt16(range0[0]));
             bwrite.Write((ushort)1);//?
@@ -413,7 +479,7 @@ namespace WinPack
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("w").Value));
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("h").Value));
                 bwrite.Write(Convert.ToUInt16(glyph.Attribute("shift").Value));
-                bwrite.Write(Convert.ToUInt16(glyph.Attribute("offset").Value));
+                bwrite.Write(Convert.ToInt16(glyph.Attribute("offset").Value));//sic!
                 bwrite.Write((ushort)0);
 
                 f0++;
@@ -424,6 +490,25 @@ namespace WinPack
         static uint calculateFontSize(uint glyph_count)
         {           
             return 44 + glyph_count * 20;
+        }
+
+        static List<string> createStrgList(string fileName)
+        {
+            List<string> strg = new List<string>();
+
+            bread = new BinaryReader(File.Open(fileName, FileMode.Open));
+            long filelength = bread.BaseStream.Length;
+            while (bread.BaseStream.Position < filelength - 1)
+            {
+                uint string_size = bread.ReadUInt32();
+                byte[] bytes = new byte[string_size];
+                for (uint j = 0; j < string_size; j++)
+                    bytes[j] = bread.ReadByte();
+                strg.Add(System.Text.Encoding.UTF8.GetString(bytes));
+            }
+            bread.Close();
+
+            return strg;
         }
     }
 }
