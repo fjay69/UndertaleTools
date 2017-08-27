@@ -338,6 +338,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
+            result.i++;//Undertale 1.05. WTF?
             if (result.i > 16) result.i--; //What?
             bread.BaseStream.Position = bacup;
             return result;
