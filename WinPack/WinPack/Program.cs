@@ -15,8 +15,8 @@ namespace WinPack
         static ushort TXTR_count;
         static bool translatale;
         static List<fontInfo> newFonts = new List<fontInfo>();
-        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
-                                    "FUNC","STRG","TXTR","AUDO" };
+        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
+                                    "FUNC","STRG","TXTR","AUDO"};
 
         struct fontInfo {
             public int id;

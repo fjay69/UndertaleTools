@@ -319,9 +319,9 @@ namespace WinExtract
             {
                 bread.BaseStream.Position = fonts[f]+28;
                 spriteInfo sprt = getSpriteInfo(bread.ReadUInt32());
-                Bitmap texture = new Bitmap(Image.FromFile(input_folder+"TXTR\\"+sprt.i+".png"));                
+                Bitmap texture = new Bitmap(Image.FromFile(input_folder+"TXTR\\"+sprt.i+".png"));
                 Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat);
-                cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");                
+                cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
             }
 
             bread.BaseStream.Position = bacup;
@@ -338,9 +338,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
-            result.i++;//Undertale 1.05
             if (result.i > 16) result.i--; //What?
-
             bread.BaseStream.Position = bacup;
             return result;
         }
