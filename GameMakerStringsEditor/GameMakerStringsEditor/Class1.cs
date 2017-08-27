@@ -19,8 +19,7 @@ namespace NishBox
 			this.ScrollAlwaysVisible = true;
 			tbox.Hide();
 			tbox.mllb = this;
-			Controls.Add(tbox);
-			
+			Controls.Add(tbox);			
 		}
 
 		protected override void OnMeasureItem(MeasureItemEventArgs e)
@@ -31,7 +30,8 @@ namespace NishBox
 			{
 				string s = Items[e.Index].ToString();
 				SizeF sf = e.Graphics.MeasureString(s,Font,Width);
-				int htex = (e.Index==0) ? 15 : 10;
+                //int htex = (e.Index==0) ? 15 : 10;
+                int htex = 10;
 				e.ItemHeight = (int)sf.Height + htex;			
 				e.ItemWidth = Width;
 			}
@@ -39,7 +39,10 @@ namespace NishBox
 
 		protected override void OnDrawItem(DrawItemEventArgs e)
 		{
-			if(Site!=null)
+            Rectangle myR = new Rectangle(e.Bounds.X, e.Bounds.Y+5, e.Bounds.Width, e.Bounds.Height-10);
+            //Rectangle myR = e.Bounds;
+
+            if (Site!=null)
 				return;
 			if(e.Index > -1)
 			{
@@ -47,16 +50,14 @@ namespace NishBox
 			
 				if((e.State & DrawItemState.Focus)==0)
 				{
-					e.Graphics.FillRectangle(new SolidBrush(SystemColors.Window),e.Bounds);
-					e.Graphics.DrawString(s,Font,new SolidBrush(SystemColors.WindowText),
-						e.Bounds);				
-					e.Graphics.DrawRectangle(new Pen(SystemColors.Highlight),e.Bounds);				
+					e.Graphics.FillRectangle(new SolidBrush(SystemColors.Window), e.Bounds);
+					e.Graphics.DrawString(s,Font,new SolidBrush(SystemColors.WindowText), myR);				
+					e.Graphics.DrawRectangle(new Pen(Color.FromArgb(173,173,173)), e.Bounds);				
 				}
 				else
 				{
-					e.Graphics.FillRectangle(new SolidBrush(SystemColors.Highlight),e.Bounds);
-					e.Graphics.DrawString(s,Font,new SolidBrush(SystemColors.HighlightText),
-						e.Bounds);
+					e.Graphics.FillRectangle(new SolidBrush(SystemColors.Highlight), e.Bounds);
+					e.Graphics.DrawString(s,Font,new SolidBrush(SystemColors.HighlightText), myR);
 				}
 			}
 		}
@@ -67,12 +68,10 @@ namespace NishBox
 
 			if (index != ListBox.NoMatches &&
 				index != 65535)
-			{
-				
+			{		
 			
 				if(e.Button == MouseButtons.Right)
-				{
-				
+				{				
 					string s = Items[index].ToString();
 					Rectangle rect = GetItemRectangle(index);
 			
@@ -186,8 +185,7 @@ namespace NishBox
 				}
 				if(index != ListBox.NoMatches &&
 					index != 65535 )
-				{
-				
+				{				
 					string s = Items[index].ToString();
 					Rectangle rect = GetItemRectangle(index);
 			
@@ -202,6 +200,5 @@ namespace NishBox
 			}
 			base.OnKeyDown(e);
 		}
-	}	
-
+	}
 }

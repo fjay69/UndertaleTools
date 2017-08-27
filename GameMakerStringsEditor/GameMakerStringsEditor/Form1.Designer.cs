@@ -108,8 +108,7 @@
 
         }
 
-        #endregion
-        private NishBox.MultiLineListBox mlb;
+        #endregion        
         private NishBox.MultiLineListBox multiLineListBox1;
         private System.Windows.Forms.TextBox textBox1;
         private System.Windows.Forms.Button button1;
