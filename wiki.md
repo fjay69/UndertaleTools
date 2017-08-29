@@ -57,7 +57,7 @@ Each line contains 2 parameters, separated by semicolons. For example:
 
 The order of the parameters: the index of the replaced font, name of new font *.gmx file.
 
-**9\.** Edit translatale.txt using Notepad or TranslaTale. Remember to save the file in UTF-8!
+**9\.** Edit translatale.txt using ~~Notepad or TranslaTale. Remember to save the file in UTF-8!~~ StringsEditor.
 
 **10\.** Everything is ready to be repacked with WinPack:
 
