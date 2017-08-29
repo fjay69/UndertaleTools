@@ -18,17 +18,19 @@ For example:
 
 `pause`
 
-Letís take a look at what the utility has unpacked.
+Let‚Äôs take a look at what the utility has unpacked.
 
 ![](http://i74.fastpic.ru/big/2016/0126/ad/076f73117b0cb79aa3f19c4ace28b4ad.png)
 
-- CHUNK Folder ñ contains whole chunks which are only necessary when packaging the game back.
-- AUDO Folder ñ contains every sound of the game.
-- FONT Folder ñ It contains the extracted fonts and sprites for fonts.
-- FONT_new folder ñ It will be used to replace the fonts with new ones.
-- TXTR folder ñ It contains sprite sheets of the game.
-- STRG.txt file ñ It contains all the strings constants used in the games.
-- translate.txt file ñ Copy of STRG.txt. It will contain the translated strings.
+- CHUNK Folder ‚Äì contains whole chunks which are only necessary when packaging the game back.
+- AUDO Folder ‚Äì contains every sound of the game.
+- FONT Folder ‚Äì It contains the extracted fonts and sprites for fonts.
+- FONT_new folder ‚Äì It will be used to replace the fonts with new ones.
+- TXTR folder ‚Äì It contains sprite sheets of the game.
+- original.strg file ‚Äì It contains all the strings constants used in the games.
+- translate.strg file ‚Äì Copy of STRG.txt. It will contain the translated strings.
+
+UPD: originally strings placed in txt file so it could be edited by Notepad. But some games uses strings with line breakers, so in txt one string split into several ones. So you have to use GameMakerStringsEditor to edit strings.
 
 **2\.** Create a project in Game Maker: Studio. I usually load the default demo project.
 
@@ -38,7 +40,7 @@ Letís take a look at what the utility has unpacked.
 
 ![](http://i74.fastpic.ru/big/2016/0126/1c/91b432f2e3f1db38862cd2f08d9b441c.png)
 
-**4\.** Click in the ì+î symbol to change the font range and add the necessary symbols.
+**4\.** Click in the ‚Äú+‚Äù symbol to change the font range and add the necessary symbols.
 
 ![](http://i74.fastpic.ru/big/2016/0126/bd/3207bea57be86c8d2d1e38e89a7482bd.png)
 
