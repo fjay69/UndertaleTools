@@ -14,6 +14,7 @@ namespace WinPack
         static uint FONT_offset;
         static ushort TXTR_count;
         static bool translatale;
+        static bool strgWithBr;
         static List<fontInfo> newFonts = new List<fontInfo>();
         static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO"};
@@ -41,6 +42,7 @@ namespace WinPack
             string input_win = args[1];
             if (args.Length >= 3) translatale = (args[2] == "-tt");
             translatale = true;
+            strgWithBr = true;
             form_size = 0;
 
             string patch_path0 = output_folder + "FONT_new\\";
@@ -83,7 +85,8 @@ namespace WinPack
                                 
                 if (chunk_name == "STRG")
                 {
-                    List<string> strg = createStrgList(output_folder + "original.strg");
+                    string ext = strgWithBr ? "strg" : "txt";
+                    List<string> strg = createStrgList(output_folder + "original."+ext);
                     //string[] strg = File.ReadAllLines(output_folder + "original.strg", System.Text.Encoding.UTF8);
                     uint lines = (uint)strg.Count;
                     if (strg[(int)(lines - 1)].Length == 0) lines--;
@@ -117,12 +120,12 @@ namespace WinPack
                     }
 
                     //Edited lines                    
-                    if (File.Exists(output_folder + "translate.strg"))
+                    if (File.Exists(output_folder + "translate."+ext))
                     {
-                        List<string> patch = createStrgList(output_folder + "translate.strg");
+                        List<string> patch = createStrgList(output_folder + "translate."+ext);
                         //string[] patch = File.ReadAllLines(output_folder + "translate.strg", System.Text.Encoding.UTF8);
                         lines = (uint)patch.Count;
-                        if (lines != strg.Count) System.Console.WriteLine("Warning: original.strg has "+ strg.Count + " lines, translate.strg has "+lines+" lines");
+                        if (lines != strg.Count) System.Console.WriteLine("Warning: original."+ext+" has "+ strg.Count + " lines, translate."+ext+" has "+lines+" lines");
                         if (lines>0 && patch[(int)(lines - 1)].Length == 0) lines--;
 
                         if (translatale) {
@@ -391,7 +394,7 @@ namespace WinPack
                         chunk_size += file_size;
                         if (f0 == files - 1) continue;
                         for (int j = 0; j < file_size % 4; j++)
-                        { bwrite.Write((byte)0); chunk_size++; }                            
+                        { bwrite.Write((byte)0); chunk_size++; }
                     }
                 }
                 else
@@ -494,21 +497,28 @@ namespace WinPack
 
         static List<string> createStrgList(string fileName)
         {
-            List<string> strg = new List<string>();
-
-            bread = new BinaryReader(File.Open(fileName, FileMode.Open));
-            long filelength = bread.BaseStream.Length;
-            while (bread.BaseStream.Position < filelength - 1)
+            if (strgWithBr)
             {
-                uint string_size = bread.ReadUInt32();
-                byte[] bytes = new byte[string_size];
-                for (uint j = 0; j < string_size; j++)
-                    bytes[j] = bread.ReadByte();
-                strg.Add(System.Text.Encoding.UTF8.GetString(bytes));
-            }
-            bread.Close();
+                List<string> strg = new List<string>();
 
-            return strg;
+                bread = new BinaryReader(File.Open(fileName, FileMode.Open));
+                long filelength = bread.BaseStream.Length;
+                while (bread.BaseStream.Position < filelength - 1)
+                {
+                    uint string_size = bread.ReadUInt32();
+                    byte[] bytes = new byte[string_size];
+                    for (uint j = 0; j < string_size; j++)
+                        bytes[j] = bread.ReadByte();
+                    strg.Add(System.Text.Encoding.UTF8.GetString(bytes));
+                }
+                bread.Close();
+
+                return strg;
+            }
+            else
+            {
+                return new List<string>(File.ReadAllLines(fileName, System.Text.Encoding.UTF8));
+            }
         }
     }
 }

@@ -16,6 +16,7 @@ namespace WinExtract
         static uint FONT_limit;
         static uint STRG_offset;
         static bool translatale;
+        static bool strgWithBr;
         static string[] fontNames;        
 
         struct endFiles
@@ -46,6 +47,7 @@ namespace WinExtract
             if (input_folder[input_folder.Length - 1] != '\\') input_folder += '\\';
             if (args.Length >= 3) translatale = (args[2] == "-tt");
             translatale = true;
+            strgWithBr = true;
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
@@ -104,20 +106,9 @@ namespace WinExtract
                 else if (chunk_name == "STRG")
                 {
                     STRG_offset = (uint)bread.BaseStream.Position;
-                    bwrite = new BinaryWriter(File.Open(input_folder + "original.strg", FileMode.Create));
-                    uint strings = bread.ReadUInt32();
-                    bread.BaseStream.Position += strings * 4;//Skip offsets
-                    for (uint i = 0; i < strings; i++)
-                    {
-                        uint string_size = bread.ReadUInt32();//00 after string
-                        bwrite.Write(string_size);
-                        for (uint j = 0; j < string_size; j++)
-                            bwrite.Write(bread.ReadByte());
-                        bread.BaseStream.Position++;
-                        //bwrite.Write((byte)0x0D);
-                        //bwrite.Write((byte)0x0A);
-                    }
-                    bwrite.Close();
+
+                    recordStrgList();//Beta! into txt (for Undertale)
+
                     long bacp = bread.BaseStream.Position;                    
                     recordFiles(collectFonts(input_folder), "FONT");
                     bread.BaseStream.Position = bacp;
@@ -192,8 +183,11 @@ namespace WinExtract
             }
 
             if (translatale)
-                if(!File.Exists(input_folder + "translate.strg"))
-                File.Copy(input_folder + "original.strg", input_folder + "translate.strg");
+            {
+                string ext = strgWithBr ? "strg" : "txt";
+                if (!File.Exists(input_folder + "translate."+ext))
+                    File.Copy(input_folder + "original."+ext, input_folder + "translate."+ext);
+            }
             else
                 File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
 
@@ -355,6 +349,41 @@ namespace WinExtract
                 bytes[j] = bread.ReadByte();
             bread.BaseStream.Position = bacup;
             return System.Text.Encoding.UTF8.GetString(bytes);
+        }
+
+        static void recordStrgList()
+        {            
+            bwrite = new BinaryWriter(File.Open(input_folder + "original."+ (strgWithBr?"strg":"txt"), FileMode.Create));
+            uint strings = bread.ReadUInt32();
+            bread.BaseStream.Position += strings * 4;//Skip offsets
+            byte sy;
+            if (strgWithBr) {
+                for (uint i = 0; i < strings; i++)
+                {
+                    uint string_size = bread.ReadUInt32();//00 after string
+                    bwrite.Write(string_size);
+                    for (uint j = 0; j < string_size; j++)
+                        bwrite.Write(bread.ReadByte());
+                    bread.BaseStream.Position++;
+                }                
+            } else {
+                for (uint i = 0; i < strings; i++)
+                {
+                    uint string_size = bread.ReadUInt32() + 1;
+                    for (uint j = 0; j < string_size; j++) { 
+                        sy = bread.ReadByte();
+                        if (sy==0x0D||sy==0x0A)
+                            System.Console.WriteLine("Warning: line "+i+" have line brake");
+                        bwrite.Write(sy);
+                        }
+                    bwrite.BaseStream.Position--;
+                    if (i < strings - 1) {
+                        bwrite.Write((byte)0x0D);
+                        bwrite.Write((byte)0x0A);
+                    }                    
+                }                
+            }
+            bwrite.Close();
         }
     }
 }
