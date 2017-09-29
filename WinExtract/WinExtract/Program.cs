@@ -47,7 +47,7 @@ namespace WinExtract
             if (input_folder[input_folder.Length - 1] != '\\') input_folder += '\\';
             if (args.Length >= 3) translatale = (args[2] == "-tt");
             translatale = true;
-            strgWithBr = true;
+            strgWithBr = false;
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
@@ -368,14 +368,19 @@ namespace WinExtract
                 }                
             } else {
                 for (uint i = 0; i < strings; i++)
-                {
-                    uint string_size = bread.ReadUInt32() + 1;
+                {                    
+                    uint string_size = bread.ReadUInt32();
+                    if (i < strings - 1) string_size++;
                     for (uint j = 0; j < string_size; j++) { 
                         sy = bread.ReadByte();
-                        if (sy==0x0D||sy==0x0A)
-                            System.Console.WriteLine("Warning: line "+i+" have line brake");
-                        bwrite.Write(sy);
+                        if (sy == 0x0D || sy == 0x0A)
+                        {
+                            System.Console.WriteLine("Warning: string " + i + " have line brake. Will be replaced with space.");
+                            bwrite.Write((byte)0x20);
                         }
+                        else
+                            bwrite.Write(sy);
+                    }
                     bwrite.BaseStream.Position--;
                     if (i < strings - 1) {
                         bwrite.Write((byte)0x0D);

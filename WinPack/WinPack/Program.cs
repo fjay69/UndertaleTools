@@ -42,7 +42,7 @@ namespace WinPack
             string input_win = args[1];
             if (args.Length >= 3) translatale = (args[2] == "-tt");
             translatale = true;
-            strgWithBr = true;
+            strgWithBr = false;
             form_size = 0;
 
             string patch_path0 = output_folder + "FONT_new\\";
