@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Drawing;
 using System.Xml.Linq;
+using System.Text;
 
 namespace WinExtract
 {
@@ -17,7 +18,8 @@ namespace WinExtract
         static uint STRG_offset;
         static bool translatale;
         static bool strgWithBr;
-        static string[] fontNames;        
+        static string[] fontNames;
+        static uint undertaleVer = 0;        
 
         struct endFiles
         {
@@ -169,7 +171,27 @@ namespace WinExtract
                     bwrite = new BinaryWriter(File.Open(input_folder+name, FileMode.Create));
                     for (uint i=0;i<chunk_size;i++)
                         bwrite.Write(bread.ReadByte());
+                    bwrite.Close();
                     bread.BaseStream.Position = bu;
+
+                        if (chunk_name == "CODE")
+                        {
+                            var md5 = System.Security.Cryptography.MD5.Create();
+                            var stream = File.OpenRead(input_folder + name);
+                            byte[] hashByte = md5.ComputeHash(stream);
+                            StringBuilder sBuilder = new StringBuilder();                            
+                            for (int i = 0; i < hashByte.Length; i++)
+                            {
+                                sBuilder.Append(hashByte[i].ToString("x2"));
+                            }
+                            string hashString = sBuilder.ToString();
+                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")
+                                undertaleVer = 101;
+                            else if (hashString == "00fc3b1363cd51f7bfc81e6c082d2d14")
+                                undertaleVer = 106;
+                            if (undertaleVer!=0)
+                                System.Console.WriteLine("Undertale v. "+ undertaleVer);
+                        }
                 }
                 else 
                 {
@@ -193,6 +215,9 @@ namespace WinExtract
 
             Directory.CreateDirectory(input_folder + "FONT_new");
             File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
+
+            Console.Write("Done! Press any key to exit.");
+            Console.ReadKey();
         }           
 
         static List<uint> collect_entries(bool fnt)
@@ -299,7 +324,7 @@ namespace WinExtract
 
             bread.BaseStream.Position = font_offset+40;
             uint glyphs = bread.ReadUInt32();
-            result +=  glyphs * 20;
+            result += glyphs * 20;
 
             bread.BaseStream.Position = bacup;
             return result;
@@ -332,7 +357,8 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
-            result.i++;//Undertale 1.05. WTF?
+            if(undertaleVer>=105)
+                result.i++;//Undertale 1.05. WTF?
             if (result.i > 16) result.i--; //What?
             bread.BaseStream.Position = bacup;
             return result;
