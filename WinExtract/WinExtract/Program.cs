@@ -216,8 +216,8 @@ namespace WinExtract
             Directory.CreateDirectory(input_folder + "FONT_new");
             File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
 
-            Console.Write("Done! Press any key to exit.");
-            Console.ReadKey();
+            //Console.Write("Done! Press any key to exit.");
+            //Console.ReadKey();
         }           
 
         static List<uint> collect_entries(bool fnt)
