@@ -4,7 +4,7 @@
     <StartArguments>"D:\Program Files\Steam\steamapps\common\Undertale\data.win" "E:\Games\Undertale2"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>"C:\Program Files %28x86%29\steam\steamapps\common\Undertale\data_.win" "E:\Games\Undertale2"</StartArguments>
+    <StartArguments>"D:\Program Files\Steam\steamapps\common\Undertale\data.win" "E:\Games\Undertale3"</StartArguments>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
 </Project>

@@ -207,8 +207,9 @@ namespace WinExtract
             if (translatale)
             {
                 string ext = strgWithBr ? "strg" : "txt";
-                if (!File.Exists(input_folder + "translate."+ext))
-                    File.Copy(input_folder + "original."+ext, input_folder + "translate."+ext);
+                if (!File.Exists(input_folder + "translate." + ext)) { 
+                    //File.Copy(input_folder + "original."+ext, input_folder + "translate."+ext);
+                }
             }
             else
                 File.Open(input_folder + "translate.txt", FileMode.OpenOrCreate);
@@ -377,12 +378,34 @@ namespace WinExtract
             return System.Text.Encoding.UTF8.GetString(bytes);
         }
 
-        static void recordStrgList()
-        {            
-            bwrite = new BinaryWriter(File.Open(input_folder + "original."+ (strgWithBr?"strg":"txt"), FileMode.Create));
-            uint strings = bread.ReadUInt32();
-            bread.BaseStream.Position += strings * 4;//Skip offsets
+        static byte[] getSTRGEntryByte(uint str_offset)
+        {
             byte sy;
+            long bacup = bread.BaseStream.Position;
+            bread.BaseStream.Position = str_offset;
+
+            uint string_size = bread.ReadUInt32();
+            List<byte> listByte = new List<byte>();
+
+            sy = bread.ReadByte();
+            while (sy != 0)
+            {
+                listByte.Add(sy);
+                sy = bread.ReadByte();
+            }
+            bread.BaseStream.Position = bacup;
+
+            byte[] bytes = listByte.ToArray();
+            return bytes;
+        }
+
+        static void recordStrgList()
+        {  
+            uint strings = bread.ReadUInt32();
+            recordStrgTranslated(strings);
+            //bread.BaseStream.Position += strings * 4;//Skip offsets
+            byte sy;
+            bwrite = new BinaryWriter(File.Open(input_folder + "original." + (strgWithBr ? "strg" : "txt"), FileMode.Create));
             if (strgWithBr) {
                 for (uint i = 0; i < strings; i++)
                 {
@@ -413,6 +436,35 @@ namespace WinExtract
                         bwrite.Write((byte)0x0A);
                     }                    
                 }                
+            }
+            bwrite.Close();
+        }
+
+        static void recordStrgTranslated(uint strings)
+        {
+            byte sy;
+            bwrite = new BinaryWriter(File.Open(input_folder + "translate.txt", FileMode.Create));
+            for (uint i = 0; i < strings; i++)
+            {
+                Console.WriteLine("String "+i+" of "+strings);
+                Console.SetCursorPosition(0, Console.CursorTop - 1);                
+                byte[] strByte = getSTRGEntryByte(bread.ReadUInt32());
+                for (uint j = 0; j < strByte.Length; j++)
+                {
+                    sy = strByte[j];
+                    if (sy == 0x0D || sy == 0x0A)
+                    {
+                        //System.Console.WriteLine("Warning: string " + i + " have line brake. Will be replaced with space.");
+                        bwrite.Write((byte)0x20);
+                    }
+                    else
+                        bwrite.Write(sy);
+                }
+                if (i < strings - 1)
+                {
+                    bwrite.Write((byte)0x0D);
+                    bwrite.Write((byte)0x0A);
+                }
             }
             bwrite.Close();
         }
