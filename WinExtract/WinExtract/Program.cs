@@ -17,6 +17,7 @@ namespace WinExtract
         static uint FONT_limit;
         static uint STRG_offset;
         static bool translatale;
+        static bool showstringsextract;
         static bool strgWithBr;
         static string[] fontNames;
         static uint undertaleVer = 0;        
@@ -47,7 +48,11 @@ namespace WinExtract
             string output_win = args[0];
             input_folder = args[1];
             if (input_folder[input_folder.Length - 1] != '\\') input_folder += '\\';
-            if (args.Length >= 3) translatale = (args[2] == "-tt");
+            for (int i=0; i<args.Length; i++)
+            {
+                if (args[i] == "-tt") translatale = true;
+                if (args[i] == "-showstringsextract") showstringsextract = true;
+            }            
             translatale = true;
             strgWithBr = false;
             uint full_size = (uint)new FileInfo(output_win).Length;
@@ -450,8 +455,11 @@ namespace WinExtract
             bwrite = new BinaryWriter(File.Open(input_folder + "translate.txt", FileMode.Create));
             for (uint i = 0; i < strings; i++)
             {
-                Console.WriteLine("String "+i+" of "+strings);
-                Console.SetCursorPosition(0, Console.CursorTop - 1);                
+                if (showstringsextract)
+                {
+                    Console.WriteLine("String " + i + " of " + strings);
+                    Console.SetCursorPosition(0, Console.CursorTop - 1);
+                }                                   
                 byte[] strByte = getSTRGEntryByte(bread.ReadUInt32());
                 for (uint j = 0; j < strByte.Length; j++)
                 {
