@@ -189,8 +189,12 @@ namespace WinExtract
                                 undertaleVer = 101;
                             else if (hashString == "00fc3b1363cd51f7bfc81e6c082d2d14")
                                 undertaleVer = 106;
+                            else if (hashString == "76de1a6b4b75786b54f7d69177eb1e3e")
+                                undertaleVer = 108;
                             if (undertaleVer!=0)
                                 System.Console.WriteLine("Undertale v. "+ undertaleVer);
+                            else
+                                System.Console.WriteLine("Unknown Undertale ver. Hash " + hashString);
                         }
                 }
                 else 
