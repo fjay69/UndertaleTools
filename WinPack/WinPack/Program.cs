@@ -43,9 +43,10 @@ namespace WinPack
             if (args.Length >= 3) translatale = (args[2] == "-tt");
             translatale = true;
             strgWithBr = false;
+            bool useTXTR = Directory.Exists(output_folder + "TXTR");
             form_size = 0;
 
-            string patch_path0 = output_folder + "FONT_new\\";
+            string patch_path0 = output_folder + "FONT_new\\";            
             if (File.Exists(patch_path0 + "patch.txt"))
             {
                 string[] patchLines = File.ReadAllLines(patch_path0 + "patch.txt", System.Text.Encoding.UTF8);
@@ -60,9 +61,9 @@ namespace WinPack
                     newFonts.Add(newFont);                    
                 }
             }
-
-            TXTR_count = (ushort)Directory.GetFiles(output_folder + "TXTR").Length;
-
+                        
+            TXTR_count = useTXTR ? (ushort)Directory.GetFiles(output_folder + "TXTR").Length : (ushort)0;
+            
             bwrite = new BinaryWriter(File.Open(input_win, FileMode.Create));
             bwrite.Write(System.Text.Encoding.ASCII.GetBytes("FORM"));
             bwrite.Write(form_size);
@@ -72,10 +73,10 @@ namespace WinPack
                 
                 string chunk_name = chunks[i];
 
-                if (chunk_name != "STRG" && chunk_name != "AUDO" && chunk_name != "FONT" && chunk_name != "TXTR") {
-                    if (!File.Exists(output_folder + "CHUNK\\" + chunk_name + ".chunk"))
-                        continue;
-                }
+                if (!File.Exists(output_folder + "CHUNK\\" + chunk_name + ".chunk"))
+                    if (chunk_name != "AUDO" && chunk_name != "TXTR")
+                    //if (chunk_name != "STRG" && chunk_name != "AUDO" && chunk_name != "FONT" && chunk_name != "TXTR")                    
+                        continue;                
 
                 uint chunk_size = 0;
                 bwrite.Write(System.Text.Encoding.ASCII.GetBytes(chunk_name));                
