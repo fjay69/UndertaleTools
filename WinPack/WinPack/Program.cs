@@ -74,8 +74,7 @@ namespace WinPack
                 string chunk_name = chunks[i];
 
                 if (!File.Exists(output_folder + "CHUNK\\" + chunk_name + ".chunk"))
-                    if (chunk_name != "AUDO" && chunk_name != "TXTR")
-                    //if (chunk_name != "STRG" && chunk_name != "AUDO" && chunk_name != "FONT" && chunk_name != "TXTR")                    
+                    if (!(chunk_name == "AUDO" || (chunk_name == "TXTR" && useTXTR)))                    
                         continue;                
 
                 uint chunk_size = 0;
@@ -281,7 +280,7 @@ namespace WinPack
                     bwrite.Write((uint)0); chunk_size += 4;
                 }
                 else if (chunk_name == "TXTR")
-                {
+                {                    
                     uint files = TXTR_count;
                     bwrite.Write((uint)(files + newFonts.Count));
                     chunk_size += 4;
