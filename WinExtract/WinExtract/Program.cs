@@ -20,7 +20,8 @@ namespace WinExtract
         static bool showstringsextract;
         static bool strgWithBr;
         static string[] fontNames;
-        static uint undertaleVer = 0;        
+        static uint undertaleVer = 0;
+        static bool correctTXTR = false;
 
         struct endFiles
         {
@@ -52,6 +53,7 @@ namespace WinExtract
             {
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-showstringsextract") showstringsextract = true;
+                if (args[i] == "-correctTXTR") correctTXTR = true;
             }            
             translatale = true;
             strgWithBr = false;
@@ -123,13 +125,16 @@ namespace WinExtract
                 }
                 else if (chunk_name == "TXTR")
                 {
-                    List<uint> entries = collect_entries(false);
-                    for (int i = 0; i < entries.Count-1; i++)
+                    List<uint> entries = collect_entries(false, correctTXTR);
+                    if (!correctTXTR)
                     {
-                        uint offset = entries[i];
-                        bread.BaseStream.Position = offset + 4;
-                        offset = bread.ReadUInt32();
-                        entries[i] = offset;
+                        for (int i = 0; i < entries.Count - 1; i++)
+                        {
+                            uint offset = entries[i];
+                            bread.BaseStream.Position = offset + 4;
+                            offset = bread.ReadUInt32();
+                            entries[i] = offset;
+                        }
                     }
                     filesToCreate = new List<endFiles>();
                     for (int i = 0; i < entries.Count - 1; i++)
@@ -230,7 +235,7 @@ namespace WinExtract
             //Console.ReadKey();
         }           
 
-        static List<uint> collect_entries(bool fnt)
+        static List<uint> collect_entries(bool fnt, bool correctTXTR_=false)
         {
             List<uint> entries = new List<uint>();
             uint files = bread.ReadUInt32();
@@ -240,6 +245,17 @@ namespace WinExtract
                 if (offset != 0)
                 {
                     entries.Add(offset);
+                }                
+            }
+            if (correctTXTR_)
+            {
+                for (int i = 0; i < files; i++)
+                {
+                    long bacup = bread.BaseStream.Position;
+                    bread.BaseStream.Position = entries[i];
+                    bread.BaseStream.Position += 8;//00 00 00 00 FF FF FF FF
+                    entries[i] = bread.ReadUInt32();
+                    bread.BaseStream.Position = bacup;
                 }
             }
             entries.Add(fnt ? FONT_limit : chunk_limit);            

@@ -15,8 +15,9 @@ namespace WinPack
         static ushort TXTR_count;
         static bool translatale;
         static bool strgWithBr;
+        static bool correctTXTR;
         static List<fontInfo> newFonts = new List<fontInfo>();
-        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","TPAG","CODE","VARI",
+        static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","EMBI","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO"};
 
         struct fontInfo {
@@ -40,7 +41,11 @@ namespace WinPack
             string output_folder = args[0];
             if (output_folder[output_folder.Length-1]!='\\') output_folder += '\\';
             string input_win = args[1];
-            if (args.Length >= 3) translatale = (args[2] == "-tt");
+            for (int i = 0; i < args.Length; i++)
+            {
+                if (args[i] == "-tt") translatale = true;                
+                if (args[i] == "-correctTXTR") correctTXTR = true;
+            }
             translatale = true;
             strgWithBr = false;
             bool useTXTR = Directory.Exists(output_folder + "TXTR");
@@ -278,6 +283,11 @@ namespace WinPack
                     }
 
                     bwrite.Write((uint)0); chunk_size += 4;
+                    //Unknown purpose zeros
+                    //for (int f=0; f<79; f++) 
+                    //{
+                    //    bwrite.Write((byte)0); chunk_size += 1;
+                    //}
                 }
                 else if (chunk_name == "TXTR")
                 {                    
@@ -290,13 +300,13 @@ namespace WinPack
                     //Headers offset
                     for (int f = 0; f < files; f++)
                     {
-                        Offsets[f] = (uint)bwrite.BaseStream.Position;
+                        Offsets[f] = (uint)bwrite.BaseStream.Position;                        
                         bwrite.Write((uint)0);
                         chunk_size += 4;
                     }
                     for (int f = 0; f < newFonts.Count; f++)
                     {
-                        Offsets[f+files] = (uint)bwrite.BaseStream.Position;
+                        Offsets[f+files] = (uint)bwrite.BaseStream.Position;                        
                         bwrite.Write((uint)0);
                         chunk_size += 4;
                     }
@@ -309,10 +319,14 @@ namespace WinPack
                         bwrite.Write(header_off);
                         bwrite.BaseStream.Position = header_off;
 
-                        bwrite.Write((uint)1);
+                        if (correctTXTR)
+                        {
+                            bwrite.Write(0x00000000);
+                            bwrite.Write(0xFFFFFFFF);
+                        } else bwrite.Write((uint)1);
                         Offsets[f] = (uint)bwrite.BaseStream.Position;
                         bwrite.Write((uint)0);
-                        chunk_size += 8;
+                        chunk_size += 8; if (correctTXTR) chunk_size += 4;
                     }
                     for (int f = 0; f < newFonts.Count; f++)
                     {
@@ -321,10 +335,15 @@ namespace WinPack
                         bwrite.Write(header_off);
                         bwrite.BaseStream.Position = header_off;
 
-                        bwrite.Write((uint)1);
+                        if (correctTXTR)
+                        {
+                            bwrite.Write(0x00000000);
+                            bwrite.Write(0xFFFFFFFF);
+                        }
+                        else bwrite.Write((uint)1);
                         Offsets[f + files] = (uint)bwrite.BaseStream.Position;
                         bwrite.Write((uint)0);
-                        chunk_size += 8;
+                        chunk_size += 8; if (correctTXTR) chunk_size += 4;
                     }
 
                     //Неизвестно, зачем здесь нули, но игра запускается и без них
