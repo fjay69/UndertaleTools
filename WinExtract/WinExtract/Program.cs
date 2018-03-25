@@ -118,10 +118,10 @@ namespace WinExtract
 
                     recordStrgList();//Beta! into txt (for Undertale)
 
-                    long bacp = bread.BaseStream.Position;                    
+                    long bacp = bread.BaseStream.Position;
                     recordFiles(collectFonts(input_folder), "FONT");
                     bread.BaseStream.Position = bacp;
-                    filesToCreate.Clear();                    
+                    filesToCreate.Clear();
                 }
                 else if (chunk_name == "TXTR")
                 {
@@ -140,7 +140,7 @@ namespace WinExtract
                     for (int i = 0; i < entries.Count - 1; i++)
                     {
                         uint offset = entries[i];
-                        uint next_offset = entries[i+1];
+                        uint next_offset = entries[i + 1];
                         uint size = next_offset - offset;
                         endFiles f1 = new endFiles();
                         f1.name = "" + i + ".png";
@@ -149,7 +149,7 @@ namespace WinExtract
                         filesToCreate.Add(f1);
                     }
                 }
-                else if (chunk_name == "AUDO")
+                else if (chunk_name == "AUDO" && undertaleVer != 360)
                 {
                     List<uint> entries = collect_entries(false);
                     filesToCreate = new List<endFiles>();
@@ -201,8 +201,12 @@ namespace WinExtract
                                 undertaleVer = 106;
                             else if (hashString == "76de1a6b4b75786b54f7d69177eb1e3e")
                                 undertaleVer = 108;
-                            if (undertaleVer!=0)
-                                System.Console.WriteLine("Undertale v. "+ undertaleVer);
+                            else if (hashString == "04b8b3491754d519a5ed62e78d358e4a")
+                                undertaleVer = 360;
+                            if (undertaleVer == 360)
+                                System.Console.WriteLine("Undertale PS Vita Edition");
+                            else if (undertaleVer != 360)
+                                System.Console.WriteLine("Undertale v. " + undertaleVer);
                             else
                                 System.Console.WriteLine("Unknown Undertale ver. Hash " + hashString);
                         }
