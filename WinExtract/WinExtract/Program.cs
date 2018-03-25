@@ -22,6 +22,8 @@ namespace WinExtract
         static string[] fontNames;
         static uint undertaleVer = 0;
         static bool correctTXTR = false;
+        static bool isPSVITA = false;
+        static bool ForceAUDO;
 
         struct endFiles
         {
@@ -54,6 +56,8 @@ namespace WinExtract
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-showstringsextract") showstringsextract = true;
                 if (args[i] == "-correctTXTR") correctTXTR = true;
+                if (args[i] == "-isPSVITA") isPSVITA = true;
+                if (args[i] == "-ForceAUDO") ForceAUDO = true;
             }            
             translatale = true;
             strgWithBr = false;
@@ -118,10 +122,10 @@ namespace WinExtract
 
                     recordStrgList();//Beta! into txt (for Undertale)
 
-                    long bacp = bread.BaseStream.Position;                    
+                    long bacp = bread.BaseStream.Position;
                     recordFiles(collectFonts(input_folder), "FONT");
                     bread.BaseStream.Position = bacp;
-                    filesToCreate.Clear();                    
+                    filesToCreate.Clear();
                 }
                 else if (chunk_name == "TXTR")
                 {
@@ -140,7 +144,7 @@ namespace WinExtract
                     for (int i = 0; i < entries.Count - 1; i++)
                     {
                         uint offset = entries[i];
-                        uint next_offset = entries[i+1];
+                        uint next_offset = entries[i + 1];
                         uint size = next_offset - offset;
                         endFiles f1 = new endFiles();
                         f1.name = "" + i + ".png";
@@ -149,7 +153,7 @@ namespace WinExtract
                         filesToCreate.Add(f1);
                     }
                 }
-                else if (chunk_name == "AUDO")
+                else if (chunk_name == "AUDO" && ForceAUDO == true)
                 {
                     List<uint> entries = collect_entries(false);
                     filesToCreate = new List<endFiles>();
@@ -172,41 +176,69 @@ namespace WinExtract
                 }
 
                 if (chunk_name != "FORM")
-                if (filesToCreate.Count==0)
-                {                    
-                    string name = "CHUNK//" + chunk_name + ".chunk";
-                    uint bu = (uint)bread.BaseStream.Position;
-                    bread.BaseStream.Position = chunk_offset;
-                    
-                    bwrite = new BinaryWriter(File.Open(input_folder+name, FileMode.Create));
-                    for (uint i=0;i<chunk_size;i++)
-                        bwrite.Write(bread.ReadByte());
-                    bwrite.Close();
-                    bread.BaseStream.Position = bu;
+                    if (filesToCreate.Count == 0)
+                    {
+                        string name = "CHUNK//" + chunk_name + ".chunk";
+                        uint bu = (uint)bread.BaseStream.Position;
+                        bread.BaseStream.Position = chunk_offset;
+
+                        bwrite = new BinaryWriter(File.Open(input_folder + name, FileMode.Create));
+                        for (uint i = 0; i < chunk_size; i++)
+                            bwrite.Write(bread.ReadByte());
+                        bwrite.Close();
+                        bread.BaseStream.Position = bu;
 
                         if (chunk_name == "CODE")
                         {
                             var md5 = System.Security.Cryptography.MD5.Create();
                             var stream = File.OpenRead(input_folder + name);
                             byte[] hashByte = md5.ComputeHash(stream);
-                            StringBuilder sBuilder = new StringBuilder();                            
+                            StringBuilder sBuilder = new StringBuilder();
                             for (int i = 0; i < hashByte.Length; i++)
                             {
                                 sBuilder.Append(hashByte[i].ToString("x2"));
                             }
                             string hashString = sBuilder.ToString();
                             if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")
+                            {
                                 undertaleVer = 101;
+                                ForceAUDO = true;
+                            }
                             else if (hashString == "00fc3b1363cd51f7bfc81e6c082d2d14")
+                            {
                                 undertaleVer = 106;
+                                ForceAUDO = true;
+
+                            }
                             else if (hashString == "76de1a6b4b75786b54f7d69177eb1e3e")
+                            {
                                 undertaleVer = 108;
-                            if (undertaleVer!=0)
-                                System.Console.WriteLine("Undertale v. "+ undertaleVer);
-                            else
-                                System.Console.WriteLine("Unknown Undertale ver. Hash " + hashString);
+                                ForceAUDO = true;
+                            }
+                            else if (hashString == "63cdc7c0c88297172f0b63a1f0fc18b8" && ForceAUDO == true)
+                            {
+                                undertaleVer = 109;
+                                isPSVITA = true;
+                            }
+                            else if (hashString == "63cdc7c0c88297172f0b63a1f0fc18b8")
+                            {
+                                undertaleVer = 109;
+                                isPSVITA = true;
+                                ForceAUDO = false;
+                            }
+                            if (undertaleVer != 0 && isPSVITA == false)
+                            {
+                                System.Console.WriteLine("Undertale v. " + undertaleVer + " PC edition");
+                            }
+                            else if (undertaleVer != 0 && isPSVITA == true)
+                            {
+                                System.Console.WriteLine("Undertale v. " + undertaleVer + " PS Vita edition");
+                            }
+                            else {
+                            System.Console.WriteLine("Unknown Undertale ver. Hash " + hashString);
+                            }
                         }
-                }
+                    }
                 else 
                 {
                     recordFiles(filesToCreate, chunk_name);                    

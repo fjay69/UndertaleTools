@@ -16,6 +16,7 @@ namespace WinPack
         static bool translatale;
         static bool strgWithBr;
         static bool correctTXTR;
+        static bool noAUDO;
         static List<fontInfo> newFonts = new List<fontInfo>();
         static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT","TMLN","OBJT","ROOM","DAFL","EMBI","TPAG","CODE","VARI",
                                     "FUNC","STRG","TXTR","AUDO"};
@@ -35,7 +36,7 @@ namespace WinPack
         {
             if (args.Length < 2)
             {
-                System.Console.WriteLine("Usage: winpack <output folder> <input .win file>");
+                System.Console.WriteLine("Usage: winpack <output folder> <input .win file> -noAUDO (When the folder AUDO doesn't exist and is a chunk)");
                 return;
             }
             string output_folder = args[0];
@@ -45,6 +46,7 @@ namespace WinPack
             {
                 if (args[i] == "-tt") translatale = true;                
                 if (args[i] == "-correctTXTR") correctTXTR = true;
+                if (args[i] == "-noAUDO") noAUDO = true;
             }
             translatale = true;
             strgWithBr = false;
@@ -383,7 +385,7 @@ namespace WinPack
                         chunk_size += file_size;
                     }
                 }
-                else if (chunk_name == "AUDO")
+                else if (chunk_name == "AUDO" && noAUDO == false)
                 {
                     uint files = (uint)Directory.GetFiles(output_folder + chunk_name).Length;
                     bwrite.Write(files); chunk_size += 4;
