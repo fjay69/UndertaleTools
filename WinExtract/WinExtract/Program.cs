@@ -20,10 +20,10 @@ namespace WinExtract
         static bool showstringsextract;
         static bool strgWithBr;
         static string[] fontNames;
-        static uint undertaleVer = 0;
+        static bool oldUndertale = false;
         static bool correctTXTR = false;
-        static bool isPSVITA = false;
-        static bool ForceAUDO;
+        //static bool isPSVITA = false;
+        static bool unpackAUDO;
 
         struct endFiles
         {
@@ -56,8 +56,9 @@ namespace WinExtract
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-showstringsextract") showstringsextract = true;
                 if (args[i] == "-correctTXTR") correctTXTR = true;
-                if (args[i] == "-isPSVITA") isPSVITA = true;
-                if (args[i] == "-ForceAUDO") ForceAUDO = true;
+                //if (args[i] == "-isPSVITA") isPSVITA = true;
+                if (args[i] == "-unpackAUDO") unpackAUDO = true;
+                if (args[i] == "-oldUndertale") oldUndertale = true;
             }            
             translatale = true;
             strgWithBr = false;
@@ -153,7 +154,7 @@ namespace WinExtract
                         filesToCreate.Add(f1);
                     }
                 }
-                else if (chunk_name == "AUDO" && ForceAUDO == true)
+                else if (chunk_name == "AUDO" && unpackAUDO == true)
                 {
                     List<uint> entries = collect_entries(false);
                     filesToCreate = new List<endFiles>();
@@ -199,43 +200,10 @@ namespace WinExtract
                                 sBuilder.Append(hashByte[i].ToString("x2"));
                             }
                             string hashString = sBuilder.ToString();
-                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")
+                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
                             {
-                                undertaleVer = 101;
-                                ForceAUDO = true;
-                            }
-                            else if (hashString == "00fc3b1363cd51f7bfc81e6c082d2d14")
-                            {
-                                undertaleVer = 106;
-                                ForceAUDO = true;
-
-                            }
-                            else if (hashString == "76de1a6b4b75786b54f7d69177eb1e3e")
-                            {
-                                undertaleVer = 108;
-                                ForceAUDO = true;
-                            }
-                            else if (hashString == "63cdc7c0c88297172f0b63a1f0fc18b8" && ForceAUDO == true)
-                            {
-                                undertaleVer = 109;
-                                isPSVITA = true;
-                            }
-                            else if (hashString == "63cdc7c0c88297172f0b63a1f0fc18b8")
-                            {
-                                undertaleVer = 109;
-                                isPSVITA = true;
-                                ForceAUDO = false;
-                            }
-                            if (undertaleVer != 0 && isPSVITA == false)
-                            {
-                                System.Console.WriteLine("Undertale v. " + undertaleVer + " PC edition");
-                            }
-                            else if (undertaleVer != 0 && isPSVITA == true)
-                            {
-                                System.Console.WriteLine("Undertale v. " + undertaleVer + " PS Vita edition");
-                            }
-                            else {
-                            System.Console.WriteLine("Unknown Undertale ver. Hash " + hashString);
+                                oldUndertale = true;
+                                unpackAUDO = true;
                             }
                         }
                     }
@@ -263,8 +231,8 @@ namespace WinExtract
             Directory.CreateDirectory(input_folder + "FONT_new");
             File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
 
-            //Console.Write("Done! Press any key to exit.");
-            //Console.ReadKey();
+            Console.Write("Done! Press any key to exit.");
+            Console.ReadKey();
         }           
 
         static List<uint> collect_entries(bool fnt, bool correctTXTR_=false)
@@ -415,7 +383,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
-            if(undertaleVer>=105)
+            if(!oldUndertale)
                 result.i++;//Undertale 1.05. WTF?
             if (result.i > 16) result.i--; //What?
             bread.BaseStream.Position = bacup;
