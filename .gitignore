@@ -1,8 +1,6 @@
 *.pdb
 WinExtract/.vs/WinExtract/v14/.suo
-WinExtract/.vs/WinExtract/v14/.suo
 run.bat
-WinExtract/.vs/WinExtract/v14/.suo
 /UndertaleTools.rar
 /.vs/ProjectSettings.json
 /.vs/slnx.sqlite
@@ -10,3 +8,4 @@ WinExtract/.vs/WinExtract/v14/.suo
 /.vs/UndertaleTools/v15/.suo
 /WinExtract/.vs/WinExtract/v15/Server/sqlite3
 /GameMakerStringsEditor/.vs/GameMakerStringsEditor/v15/Server/sqlite3
+/TXTRCut/.vs/TXTRCut/v15

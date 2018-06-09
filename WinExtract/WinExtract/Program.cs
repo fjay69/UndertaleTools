@@ -19,11 +19,9 @@ namespace WinExtract
         static bool translatale;
         static bool showstringsextract;
         static bool strgWithBr;
-        static string[] fontNames;
-        static bool oldUndertale = false;
-        static bool correctTXTR = false;
-        //static bool isPSVITA = false;
-        static bool unpackAUDO;
+        static string[] fontNames;        
+        static bool correctTXTR = false;        
+        static bool unpackAUDO = false;
 
         struct endFiles
         {
@@ -55,10 +53,8 @@ namespace WinExtract
             {
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-showstringsextract") showstringsextract = true;
-                if (args[i] == "-correctTXTR") correctTXTR = true;
-                //if (args[i] == "-isPSVITA") isPSVITA = true;
+                if (args[i] == "-correctTXTR") correctTXTR = true;                
                 if (args[i] == "-unpackAUDO") unpackAUDO = true;
-                if (args[i] == "-oldUndertale") oldUndertale = true;
             }            
             translatale = true;
             strgWithBr = false;
@@ -84,38 +80,45 @@ namespace WinExtract
                     full_size = chunk_limit;
                     chunk_size = 0;
                 }
-                else if (chunk_name == "TPAG")
+                else if (chunk_name == "SPRT")
                 {
-                    //StreamWriter tpag = new StreamWriter(input_folder + "TPAG.txt", false, System.Text.Encoding.ASCII);
-                    //uint sprite_count = bread.ReadUInt32();
-                    //bread.BaseStream.Position += sprite_count * 4;//Skip offsets
-                    //for (uint i = 0; i < sprite_count; i++)
-                    //{
-                    //    tpag.Write(bread.ReadInt16());//x
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//y
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//w1
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//h1
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//?
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//?
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//w2
-                    //    tpag.Write(";");                        
-                    //    tpag.Write(bread.ReadInt16());//h2
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//w3
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//h3
-                    //    tpag.Write(";");
-                    //    tpag.Write(bread.ReadInt16());//txtr id
-                    //    tpag.Write((char)0x0D);
-                    //    tpag.Write((char)0x0A);
-                    //}
-                    //bread.BaseStream.Position = chunk_offset;
+                    StreamWriter tpag = new StreamWriter(input_folder + "SPRT.txt", false, System.Text.Encoding.ASCII);
+                    uint sprite_count = bread.ReadUInt32();
+                    long sprtoffset = bread.BaseStream.Position;
+                    uint i = 0;
+                    for (; i < sprite_count; sprtoffset+=4,i++) {
+                        bread.BaseStream.Position = sprtoffset;
+                        long sprt = bread.ReadUInt32();
+                        bread.BaseStream.Position = sprt;
+                        string what = getSTRGEntry(bread.ReadUInt32());                        
+                        bread.BaseStream.Position += 0x34;//Skip 0x34 bytes
+                        //TPAG
+                        uint spritec = bread.ReadUInt32();
+                        for (int k=0; k < spritec; k++) {
+                            tpag.Write(what+"("+k+")");//Sprite name
+                            tpag.Write(";");
+
+                            long backup = bread.BaseStream.Position;
+                            sprt = bread.ReadUInt32();
+                            bread.BaseStream.Position = sprt;
+                            tpag.Write(bread.ReadInt16());//x
+                            tpag.Write(";");
+                            tpag.Write(bread.ReadInt16());//y
+                            tpag.Write(";");
+                            tpag.Write(bread.ReadInt16());//w1
+                            tpag.Write(";");
+                            tpag.Write(bread.ReadInt16());//h1
+                            tpag.Write(";");
+                            bread.BaseStream.Position += 12;
+                            tpag.Write(bread.ReadInt16());//txtr id
+                            tpag.Write((char)0x0D);
+                            tpag.Write((char)0x0A);
+                            bread.BaseStream.Position = backup;
+                            bread.BaseStream.Position += 4;
+                        }                        
+                    }
+                    tpag.Close();
+                    bread.BaseStream.Position = chunk_limit;                    
                 }
                 else if (chunk_name == "STRG")
                 {
@@ -199,12 +202,7 @@ namespace WinExtract
                             {
                                 sBuilder.Append(hashByte[i].ToString("x2"));
                             }
-                            string hashString = sBuilder.ToString();
-                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
-                            {
-                                oldUndertale = true;
-                                unpackAUDO = true;
-                            }
+                            string hashString = sBuilder.ToString();                            
                         }
                     }
                 else 
@@ -383,9 +381,7 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
-            if(!oldUndertale)
-                result.i++;//Undertale 1.05. WTF?
-            if (result.i > 16) result.i--; //What?
+            
             bread.BaseStream.Position = bacup;
             return result;
         }
