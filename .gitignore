@@ -9,3 +9,5 @@ run.bat
 /WinExtract/.vs/WinExtract/v15/Server/sqlite3
 /GameMakerStringsEditor/.vs/GameMakerStringsEditor/v15/Server/sqlite3
 /TXTRCut/.vs/TXTRCut/v15
+/GameMakerStringsEditor/.vs/GameMakerStringsEditor/DesignTimeBuild
+/TXTRCut/.vs/TXTRCut/DesignTimeBuild

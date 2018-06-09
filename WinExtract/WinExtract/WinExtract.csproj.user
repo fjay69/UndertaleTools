@@ -4,7 +4,7 @@
     <StartArguments>"E:\Undertale2\data.win" "E:\Undertale2\Data"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>"E:\Undertale\data.win" "E:\Undertale\Data"</StartArguments>
+    <StartArguments>"E:\Game Maker Games PS Vita\game [Va-11 Hall-a PS Vita].win" "E:\Game Maker Games PS Vita\VA"</StartArguments>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
 </Project>

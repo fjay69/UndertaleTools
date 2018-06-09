@@ -385,7 +385,7 @@ namespace WinPack
                         chunk_size += file_size;
                     }
                 }
-                else if (chunk_name == "AUDO" && noAUDO == false)
+                else if (chunk_name == "AUDO" && noAUDO == false && Directory.Exists(output_folder + chunk_name))
                 {
                     uint files = (uint)Directory.GetFiles(output_folder + chunk_name).Length;
                     bwrite.Write(files); chunk_size += 4;
