@@ -29,6 +29,9 @@ namespace WinPack
             public uint fontname_offset;
             public uint image_offset;
             public uint glyph_count;
+            public uint txtr_id;
+            public uint txtr_x;
+            public uint txtr_y;
             public XDocument data;
         }
         
@@ -65,6 +68,9 @@ namespace WinPack
                     newFont.id = Convert.ToInt32(par[0]);
                     newFont.filename = par[1].Substring(0, par[1].Length - ".gmx".Length);
                     newFont.data = XDocument.Load(patch_path0+par[1]);
+                    newFont.txtr_id = Convert.ToUInt32(par[2]);
+                    newFont.txtr_x = Convert.ToUInt32(par[3]);
+                    newFont.txtr_y = Convert.ToUInt32(par[4]);
                     newFonts.Add(newFont);                    
                 }
             }
@@ -275,9 +281,12 @@ namespace WinPack
                             w = (ushort)texture.Width;
                             h = (ushort)texture.Height;
                         }
-                        ushort x = 0;
-                        ushort y = 0;                        
-                        ushort s = (ushort)(TXTR_count + f0 + 1);//???
+                        //ushort x = 0;
+                        //ushort y = 0;                        
+                        //ushort s = (ushort)(TXTR_count + f0 + 1);//???
+                        ushort x = (ushort)fi.txtr_x;
+                        ushort y = (ushort)fi.txtr_y;
+                        ushort s = (ushort)(fi.txtr_id+1);//???
 
                         editSprite((uint)bwrite.BaseStream.Position, x, y, w, h, s);                        
                         bwrite.BaseStream.Position += 22;
@@ -294,10 +303,11 @@ namespace WinPack
                 else if (chunk_name == "TXTR")
                 {                    
                     uint files = TXTR_count;
-                    bwrite.Write((uint)(files + newFonts.Count));
+                    uint filesf = (uint)(files + newFonts.Count);                    
+                    bwrite.Write(files);
                     chunk_size += 4;
 
-                    uint[] Offsets = new uint[files+newFonts.Count];
+                    uint[] Offsets = new uint[files];
                     
                     //Headers offset
                     for (int f = 0; f < files; f++)
@@ -306,13 +316,7 @@ namespace WinPack
                         bwrite.Write((uint)0);
                         chunk_size += 4;
                     }
-                    for (int f = 0; f < newFonts.Count; f++)
-                    {
-                        Offsets[f+files] = (uint)bwrite.BaseStream.Position;                        
-                        bwrite.Write((uint)0);
-                        chunk_size += 4;
-                    }
-
+                    
                     //Headers
                     for (int f = 0; f < files; f++)
                     {
@@ -330,24 +334,7 @@ namespace WinPack
                         bwrite.Write((uint)0);
                         chunk_size += 8; if (correctTXTR) chunk_size += 4;
                     }
-                    for (int f = 0; f < newFonts.Count; f++)
-                    {
-                        uint header_off = (uint)bwrite.BaseStream.Position;
-                        bwrite.BaseStream.Position = Offsets[f+files];
-                        bwrite.Write(header_off);
-                        bwrite.BaseStream.Position = header_off;
-
-                        if (correctTXTR)
-                        {
-                            bwrite.Write(0x00000000);
-                            bwrite.Write(0xFFFFFFFF);
-                        }
-                        else bwrite.Write((uint)1);
-                        Offsets[f + files] = (uint)bwrite.BaseStream.Position;
-                        bwrite.Write((uint)0);
-                        chunk_size += 8; if (correctTXTR) chunk_size += 4;
-                    }
-
+                    
                     //Неизвестно, зачем здесь нули, но игра запускается и без них
                     //Если требуется сравнить оригинальный win со сгенерированным, расскоментируйте строки
                     //for (int f=0; f<13; f++) 
@@ -358,32 +345,57 @@ namespace WinPack
                     //Files
                     for (int f0 = 0; f0 < files; f0++)
                     {
+                        bool modified = false;
                         uint file_off = (uint)bwrite.BaseStream.Position;
                         bwrite.BaseStream.Position = Offsets[f0];
                         bwrite.Write(file_off);
                         bwrite.BaseStream.Position = file_off;
 
-                        uint file_size = (uint)new FileInfo(output_folder + chunk_name + "\\" + f0 + ".png").Length;
-                        bread = new BinaryReader(File.Open (output_folder + chunk_name + "\\" + f0 + ".png", FileMode.Open));                        
+                        //Modify TXTR with new font
+                        Bitmap texture;
+                        using (var tempbmp = new Bitmap(output_folder + chunk_name + "\\" + f0 + ".png"))
+                        {
+                            texture = new Bitmap(tempbmp);
+                            Graphics newtext = Graphics.FromImage(texture);
+                            for (int ff = 0; ff < newFonts.Count; ff++)
+                            {
+                                fontInfo fi = newFonts[ff];
+                                if (fi.txtr_id == f0)
+                                {
+                                    modified = true;
+                                    string imagePath = output_folder + "FONT_new\\" + fi.data.Element("font").Element("image").Value;
+                                    Bitmap fontImage = new Bitmap(imagePath);
+                                    newtext.SetClip(new Rectangle((int)fi.txtr_x, (int)fi.txtr_y, fontImage.Width, fontImage.Height));
+                                    newtext.Clear(Color.Transparent);
+                                    newtext.DrawImage(fontImage, fi.txtr_x, fi.txtr_y);
+                                }
+                            }
+                            if (modified) texture.Save(output_folder + "FONT_new\\" + f0 + "m.png");//?
+                        }
+                                                                        
+                        string txtr_path = modified ? output_folder + "FONT_new\\" + f0 + "m.png" : output_folder + chunk_name + "\\" + f0 + ".png";
+
+                        uint file_size = (uint)new FileInfo(txtr_path).Length;
+                        bread = new BinaryReader(File.Open (txtr_path, FileMode.Open));                        
                         for (uint j = 0; j < file_size; j++)
                             bwrite.Write(bread.ReadByte());
                         chunk_size += file_size;
                     }
-                    for (int f0 = 0; f0 < newFonts.Count; f0++)
-                    {
-                        uint file_off = (uint)bwrite.BaseStream.Position;
-                        bwrite.BaseStream.Position = Offsets[f0+files];
-                        bwrite.Write(file_off);
-                        bwrite.BaseStream.Position = file_off;
-
-                        string imagePath = output_folder + "FONT_new\\" + newFonts[f0].data.Element("font").Element("image").Value;
-
-                        uint file_size = (uint)new FileInfo(imagePath).Length;
-                        bread = new BinaryReader(File.Open(imagePath, FileMode.Open));
-                        for (uint j = 0; j < file_size; j++)
-                            bwrite.Write(bread.ReadByte());
-                        chunk_size += file_size;
-                    }
+                    //for (int f0 = 0; f0 < newFonts.Count; f0++)
+                    //{
+                    //    uint file_off = (uint)bwrite.BaseStream.Position;
+                    //    bwrite.BaseStream.Position = Offsets[f0+files];
+                    //    bwrite.Write(file_off);
+                    //    bwrite.BaseStream.Position = file_off;
+                    //
+                    //    string imagePath = output_folder + "FONT_new\\" + newFonts[f0].data.Element("font").Element("image").Value;
+                    //
+                    //    uint file_size = (uint)new FileInfo(imagePath).Length;
+                    //    bread = new BinaryReader(File.Open(imagePath, FileMode.Open));
+                    //    for (uint j = 0; j < file_size; j++)
+                    //        bwrite.Write(bread.ReadByte());
+                    //    chunk_size += file_size;
+                    //}
                 }
                 else if (chunk_name == "AUDO" && noAUDO == false && Directory.Exists(output_folder + chunk_name))
                 {

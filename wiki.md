@@ -51,11 +51,13 @@ UPD: originally strings placed in txt file so it could be edited by Notepad. But
 **7\.** Copy new fonts and sprites into FONT_new folder.
 
 **8\.** Now edit patch.txt.
-Each line contains 2 parameters, separated by semicolons. For example:
+Each line contains 5 parameters, separated by semicolons. For example:
 
-`2;2_new.gmx`
+`2;2_new.gmx;1;0;0`
 
-The order of the parameters: the index of the replaced font, name of new font *.gmx file.
+The order of the parameters: the index of the replaced font, name of new font *.gmx file, the index of TXTR sheet, x and y positions on sheet.
+
+You can replace original fonts or place modified font on any free space of TXTR sheets.
 
 **9\.** Edit translatale.txt using ~~Notepad or TranslaTale. Remember to save the file in UTF-8!~~ StringsEditor.
 

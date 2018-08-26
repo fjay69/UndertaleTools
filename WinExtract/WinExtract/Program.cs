@@ -53,7 +53,7 @@ namespace WinExtract
             {
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-showstringsextract") showstringsextract = true;
-                if (args[i] == "-correctTXTR") correctTXTR = true;                
+                if (args[i] == "-correctTXTR") correctTXTR = true;
                 if (args[i] == "-unpackAUDO") unpackAUDO = true;
             }            
             translatale = true;
@@ -86,16 +86,18 @@ namespace WinExtract
                     uint sprite_count = bread.ReadUInt32();
                     long sprtoffset = bread.BaseStream.Position;
                     uint i = 0;
-                    for (; i < sprite_count; sprtoffset+=4,i++) {
+                    for (; i < sprite_count; sprtoffset += 4, i++)
+                    {
                         bread.BaseStream.Position = sprtoffset;
                         long sprt = bread.ReadUInt32();
                         bread.BaseStream.Position = sprt;
-                        string what = getSTRGEntry(bread.ReadUInt32());                        
+                        string what = getSTRGEntry(bread.ReadUInt32());
                         bread.BaseStream.Position += 0x34;//Skip 0x34 bytes
                         //TPAG
                         uint spritec = bread.ReadUInt32();
-                        for (int k=0; k < spritec; k++) {
-                            tpag.Write(what+"("+k+")");//Sprite name
+                        for (int k = 0; k < spritec; k++)
+                        {
+                            tpag.Write(what + "(" + k + ")");//Sprite name
                             tpag.Write(";");
 
                             long backup = bread.BaseStream.Position;
@@ -115,10 +117,10 @@ namespace WinExtract
                             tpag.Write((char)0x0A);
                             bread.BaseStream.Position = backup;
                             bread.BaseStream.Position += 4;
-                        }                        
+                        }
                     }
                     tpag.Close();
-                    bread.BaseStream.Position = chunk_limit;                    
+                    bread.BaseStream.Position = chunk_limit;
                 }
                 else if (chunk_name == "STRG")
                 {
@@ -202,7 +204,12 @@ namespace WinExtract
                             {
                                 sBuilder.Append(hashByte[i].ToString("x2"));
                             }
-                            string hashString = sBuilder.ToString();                            
+                            string hashString = sBuilder.ToString();
+                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
+                            {
+                                oldUndertale = true;
+                                unpackAUDO = true;
+                            }
                         }
                     }
                 else 
@@ -292,7 +299,7 @@ namespace WinExtract
                 uint offset = entries[i];
                 bread.BaseStream.Position = offset;
                 string font_name = getSTRGEntry(bread.ReadUInt32());
-                fontsIndex.WriteLine(i.ToString() + ";" + font_name+".font.gmx");
+                
                 fontNames[i] = font_name;
                                
                 xfont.Add(new XElement("name", getSTRGEntry(bread.ReadUInt32())));
@@ -307,8 +314,10 @@ namespace WinExtract
                 bread.ReadUInt16();
                 xrange.Add(new XElement("range0",""+lrange+","+urange));
                 xfont.Add(xrange);
-                                
-                bread.BaseStream.Position += 12;
+
+                spriteInfo fontSprite = getSpriteInfo(bread.ReadUInt32());
+                fontsIndex.WriteLine(i.ToString() + ";" + font_name + ".font.gmx;"+ fontSprite.i+";"+fontSprite.x+";"+fontSprite.y);
+                bread.BaseStream.Position += 8;
                 uint glyphCount = bread.ReadUInt32();
                 xrange = new XElement("glyphs");
                 for (uint g=0; g<glyphCount; g++)
@@ -380,8 +389,7 @@ namespace WinExtract
             result.w = bread.ReadUInt16();
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
-            result.i = bread.ReadUInt16();
-            
+            result.i = bread.ReadUInt16();            
             bread.BaseStream.Position = bacup;
             return result;
         }
