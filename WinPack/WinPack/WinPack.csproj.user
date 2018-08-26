@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>"E:\Undertale\Data" "E:\Game Maker Games PS Vita\game [Va-11 Hall-a PS Vita]_new.win"</StartArguments>
+    <StartArguments>"D:\UndertalePC" "D:\Program Files\Steam\steamapps\common\Undertale\datanew.win"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
     <StartArguments>"E:\Games\Undertale2" "C:\Program Files %28x86%29\steam\steamapps\common\Undertale\new_data.win"</StartArguments>
