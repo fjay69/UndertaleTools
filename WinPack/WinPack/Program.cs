@@ -18,6 +18,7 @@ namespace WinPack
         static bool strgWithBr;
         static bool correctTXTR;
         static bool noAUDO;
+        static bool UTswitch;
         static List<fontInfo> newFonts = new List<fontInfo>();
         static string[] chunks = new string[] { "GEN8","OPTN","LANG","EXTN","SOND","AGRP","SPRT","BGND","PATH","SCPT","GLOB","SHDR","FONT",
                                                 "TMLN","OBJT","ROOM","DAFL","EMBI","TPAG","CODE","VARI","FUNC","STRG","TXTR","AUDO"};
@@ -51,6 +52,7 @@ namespace WinPack
                 if (args[i] == "-tt") translatale = true;
                 if (args[i] == "-correctTXTR") correctTXTR = true;
                 if (args[i] == "-noAUDO") noAUDO = true;
+                if (args[i] == "-switch") UTswitch = true;
             }
             translatale = true;
             strgWithBr = false;
@@ -181,6 +183,10 @@ namespace WinPack
                             bwrite.Write(0x00000000);
                             bwrite.Write(0xFFFFFFFF);
                         } else bwrite.Write((uint)1);
+                        if (UTswitch) { 
+                            bwrite.Write((uint)0);//Switch
+                            chunk_size += 4;//Switch
+                        }
                         Offsets[f] = (uint)bwrite.BaseStream.Position;
                         bwrite.Write((uint)0);
                         chunk_size += 8; if (correctTXTR) chunk_size += 4;

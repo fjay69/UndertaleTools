@@ -92,7 +92,8 @@ namespace WinExtract
                         long sprt = bread.ReadUInt32();
                         bread.BaseStream.Position = sprt;
                         string what = getSTRGEntry(bread.ReadUInt32());
-                        bread.BaseStream.Position += 0x34;//Skip 0x34 bytes
+                        //bread.BaseStream.Position += 0x34;//Skip 0x34 bytes
+                        bread.BaseStream.Position += 0x48;//Switch
                         //TPAG
                         uint spritec = bread.ReadUInt32();
                         for (int k = 0; k < spritec; k++)
@@ -141,7 +142,8 @@ namespace WinExtract
                         for (int i = 0; i < entries.Count - 1; i++)
                         {
                             uint offset = entries[i];
-                            bread.BaseStream.Position = offset + 4;
+                            //bread.BaseStream.Position = offset + 4;
+                            bread.BaseStream.Position = offset + 8;//Extra 0000 Switch
                             offset = bread.ReadUInt32();
                             entries[i] = offset;
                         }
@@ -207,14 +209,14 @@ namespace WinExtract
                             string hashString = sBuilder.ToString();
                             if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
                             {
-                                oldUndertale = true;
+                                //oldUndertale = true;
                                 unpackAUDO = true;
                             }
                         }
                     }
                 else 
                 {
-                    recordFiles(filesToCreate, chunk_name);                    
+                    recordFiles(filesToCreate, chunk_name);
                     
                     if (chunk_name == "TXTR") collectFontImages();
                 }
@@ -363,19 +365,23 @@ namespace WinExtract
             return result;
         }
 
-        static void collectFontImages() {
+        static void collectFontImages()
+        {
             long bacup = bread.BaseStream.Position;
             bread.BaseStream.Position = FONT_offset;
             List<uint> fonts = collect_entries(false);
-            for (int f=0; f<fonts.Count-1; f++)
+            for (int f = 0; f < fonts.Count - 1; f++)
             {
-                bread.BaseStream.Position = fonts[f]+28;
+                bread.BaseStream.Position = fonts[f] + 28;
                 spriteInfo sprt = getSpriteInfo(bread.ReadUInt32());
-                Bitmap texture = new Bitmap(Image.FromFile(input_folder+"TXTR\\"+sprt.i+".png"));
-                Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat);
-                cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
+                Bitmap texture;
+                using (var tempbmp = new Bitmap(Image.FromFile(input_folder + "TXTR\\" + sprt.i + ".png")))
+                {
+                    texture = new Bitmap(tempbmp);
+                    Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat);
+                    cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
+                }
             }
-
             bread.BaseStream.Position = bacup;
         }
 
