@@ -8,26 +8,27 @@ using System.Text;
 namespace WinExtract
 {
     class Program
-    {   
+    {
         static BinaryReader bread;
         static BinaryWriter bwrite;
         static string input_folder;
-        static uint chunk_limit;        
+        static uint chunk_limit;
         static uint FONT_offset;
         static uint FONT_limit;
         static uint STRG_offset;
         static bool translatale;
         static bool showstringsextract;
         static bool strgWithBr;
-        static string[] fontNames;        
-        static bool correctTXTR = false;        
+        static string[] fontNames;
+        static bool correctTXTR = false;
         static bool unpackAUDO = false;
+        static bool UTswitch = false;
 
         struct endFiles
         {
             public string name;
             public uint offset;
-            public uint size;            
+            public uint size;
         }
 
         struct spriteInfo
@@ -55,6 +56,7 @@ namespace WinExtract
                 if (args[i] == "-showstringsextract") showstringsextract = true;
                 if (args[i] == "-correctTXTR") correctTXTR = true;
                 if (args[i] == "-unpackAUDO") unpackAUDO = true;
+                if (args[i] == "-switch") UTswitch = true;
             }            
             translatale = true;
             strgWithBr = false;
@@ -92,8 +94,7 @@ namespace WinExtract
                         long sprt = bread.ReadUInt32();
                         bread.BaseStream.Position = sprt;
                         string what = getSTRGEntry(bread.ReadUInt32());
-                        //bread.BaseStream.Position += 0x34;//Skip 0x34 bytes
-                        bread.BaseStream.Position += 0x48;//Switch
+                        bread.BaseStream.Position += (UTswitch ? 0x48 : 0x34);//Skip
                         //TPAG
                         uint spritec = bread.ReadUInt32();
                         for (int k = 0; k < spritec; k++)
@@ -142,8 +143,7 @@ namespace WinExtract
                         for (int i = 0; i < entries.Count - 1; i++)
                         {
                             uint offset = entries[i];
-                            //bread.BaseStream.Position = offset + 4;
-                            bread.BaseStream.Position = offset + 8;//Extra 0000 Switch
+                            bread.BaseStream.Position = offset + (UTswitch ? 8 : 4);
                             offset = bread.ReadUInt32();
                             entries[i] = offset;
                         }
@@ -252,7 +252,7 @@ namespace WinExtract
                 if (offset != 0)
                 {
                     entries.Add(offset);
-                }                
+                }
             }
             if (correctTXTR_)
             {
@@ -265,11 +265,11 @@ namespace WinExtract
                     bread.BaseStream.Position = bacup;
                 }
             }
-            entries.Add(fnt ? FONT_limit : chunk_limit);            
+            entries.Add(fnt ? FONT_limit : chunk_limit);
             return entries;
         }
 
-        static void recordFiles(List<endFiles> files, string folder) {            
+        static void recordFiles(List<endFiles> files, string folder) {
             Directory.CreateDirectory(input_folder + folder);
             for (int i = 0; i < files.Count; i++)
             {
@@ -282,7 +282,7 @@ namespace WinExtract
                     bwrite.Write(bread.ReadByte());
                 bwrite.Close();
                 bread.BaseStream.Position = bu;
-            }            
+            }
         }
 
         static List<endFiles> collectFonts(string input_folder) {
@@ -335,11 +335,11 @@ namespace WinExtract
                     xglyph.SetAttributeValue("w", bread.ReadUInt16());
                     xglyph.SetAttributeValue("h", bread.ReadUInt16());
                     xglyph.SetAttributeValue("shift", bread.ReadUInt16());
-                    xglyph.SetAttributeValue("offset", bread.ReadInt16());//sic!                    
+                    xglyph.SetAttributeValue("offset", bread.ReadInt16());//sic!
                     xrange.Add(xglyph);
 
                     bread.BaseStream.Position = bacp;
-                }                
+                }
                 xfont.Add(xrange);
 
                 xfont.Add(new XElement("image", ""+font_name+".png"));
@@ -395,14 +395,15 @@ namespace WinExtract
             result.w = bread.ReadUInt16();
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
-            result.i = bread.ReadUInt16();            
+            result.i = bread.ReadUInt16();
+            //if(result.i>20) result.i--;//Some old-versions
             bread.BaseStream.Position = bacup;
             return result;
         }
 
         static string getSTRGEntry(uint str_offset)
         {
-            long bacup = bread.BaseStream.Position;            
+            long bacup = bread.BaseStream.Position;
             bread.BaseStream.Position = str_offset-4;//???
             
             uint string_size = bread.ReadUInt32();
@@ -453,10 +454,11 @@ namespace WinExtract
             } else {
                 for (uint i = 0; i < strings; i++)
                 {                    
-                    uint string_size = bread.ReadUInt32();
+                    uint string_size = bread.ReadUInt32();//Bytes or Unicode symbools?
                     if (i < strings - 1) string_size++;
-                    for (uint j = 0; j < string_size; j++) { 
-                        sy = bread.ReadByte();
+                    sy = bread.ReadByte();
+                    for (; sy!=0x00; sy = bread.ReadByte()) {
+                    //for (uint j = 0; j < string_size; j++) {
                         if (sy == 0x0D || sy == 0x0A)
                         {
                             System.Console.WriteLine("Warning: string " + i + " have line brake. Will be replaced with space.");
@@ -469,8 +471,8 @@ namespace WinExtract
                     if (i < strings - 1) {
                         bwrite.Write((byte)0x0D);
                         bwrite.Write((byte)0x0A);
-                    }                    
-                }                
+                    }
+                }
             }
             bwrite.Close();
         }

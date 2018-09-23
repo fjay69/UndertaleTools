@@ -1,10 +1,10 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="14.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Release|AnyCPU'">
-    <StartArguments>"E:\Undertale2\data.win" "E:\Undertale2\Data"</StartArguments>
+    <StartArguments>"E:\Undertale\data.win" "E:\Undertale\DataWin"</StartArguments>
   </PropertyGroup>
   <PropertyGroup Condition="'$(Configuration)|$(Platform)' == 'Debug|AnyCPU'">
-    <StartArguments>"D:\UndertaleSwitch\game.win" "D:\UndertaleSwitch\Data"</StartArguments>
+    <StartArguments>"D:\Undertale\data.win" "D:\Undertale\DataWin"</StartArguments>
     <EnableUnmanagedDebugging>true</EnableUnmanagedDebugging>
   </PropertyGroup>
 </Project>
