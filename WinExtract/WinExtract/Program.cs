@@ -467,7 +467,7 @@ namespace WinExtract
                         else
                             bwrite.Write(sy);
                     }
-                    bwrite.BaseStream.Position--;
+                    //bwrite.BaseStream.Position--;
                     if (i < strings - 1) {
                         bwrite.Write((byte)0x0D);
                         bwrite.Write((byte)0x0A);
