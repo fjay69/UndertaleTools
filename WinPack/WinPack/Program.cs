@@ -15,7 +15,7 @@ namespace WinPack
         static uint STRG_offset;
         static ushort TXTR_count;
         static bool translatale;
-        static bool strgWithBr;
+        static bool strgWithBr = false;
         static bool correctTXTR;
         static bool noAUDO;
         static bool UTswitch;
@@ -53,9 +53,10 @@ namespace WinPack
                 if (args[i] == "-correctTXTR") correctTXTR = true;
                 if (args[i] == "-noAUDO") noAUDO = true;
                 if (args[i] == "-switch") UTswitch = true;
+                if (args[i] == "-strgWithBr") strgWithBr = true;
             }
             translatale = true;
-            strgWithBr = false;
+            
             bool useTXTR = Directory.Exists(output_folder + "TXTR");
             form_size = 0;
 
