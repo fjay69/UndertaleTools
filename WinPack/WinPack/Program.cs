@@ -148,10 +148,10 @@ namespace WinPack
 
                     bwrite.Write((uint)0); chunk_size += 4;
                     //Unknown purpose zeros
-                    //for (int f=0; f<79; f++) 
-                    //{
-                    //    bwrite.Write((byte)0); chunk_size += 1;
-                    //}
+                    for (int f=0; f<0x25; f++) 
+                    {
+                        bwrite.Write((byte)0); chunk_size += 1;
+                    }
                 }
                 else if (chunk_name == "TXTR")
                 {
@@ -182,7 +182,7 @@ namespace WinPack
                         {
                             bwrite.Write(0x00000000);
                             bwrite.Write(0xFFFFFFFF);
-                        } else bwrite.Write((uint)1);
+                        } else bwrite.Write((uint)0);//1?
                         if (UTswitch) { 
                             bwrite.Write((uint)0);//Switch
                             chunk_size += 4;//Switch
@@ -194,10 +194,10 @@ namespace WinPack
                     
                     //Неизвестно, зачем здесь нули, но игра запускается и без них
                     //Если требуется сравнить оригинальный win со сгенерированным, расскоментируйте строки
-                    //for (int f=0; f<13; f++) 
-                    //{
-                    //    bwrite.Write((uint)0); chunk_size += 4;
-                    //}
+                    for (int f=0; f<0x74; f++) 
+                    {
+                        bwrite.Write((byte)0); chunk_size += 1;
+                    }
 
                     //Files
                     for (int f0 = 0; f0 < files; f0++)

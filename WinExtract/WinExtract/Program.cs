@@ -16,10 +16,10 @@ namespace WinExtract
         static uint FONT_offset;
         static uint FONT_limit;
         static uint STRG_offset;
+        static string[] fontNames;
         static bool translatale;
         static bool showstringsextract;
-        static bool strgWithBr;
-        static string[] fontNames;
+        static bool strgWithBr = false;
         static bool correctTXTR = false;
         static bool unpackAUDO = false;
         static bool UTswitch = false;
@@ -57,9 +57,9 @@ namespace WinExtract
                 if (args[i] == "-correctTXTR") correctTXTR = true;
                 if (args[i] == "-unpackAUDO") unpackAUDO = true;
                 if (args[i] == "-switch") UTswitch = true;
-            }            
+                if (args[i] == "-strgWithBr") strgWithBr = true;
+            }
             translatale = true;
-            strgWithBr = false;
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
@@ -238,9 +238,9 @@ namespace WinExtract
             Directory.CreateDirectory(input_folder + "FONT_new");
             File.Open(input_folder + "FONT_new\\patch.txt", FileMode.OpenOrCreate);
 
-            Console.Write("Done! Press any key to exit.");
-            Console.ReadKey();
-        }           
+            //Console.Write("Done! Press any key to exit.");
+            //Console.ReadKey();
+        }
 
         static List<uint> collect_entries(bool fnt, bool correctTXTR_=false)
         {
@@ -450,10 +450,10 @@ namespace WinExtract
                     for (uint j = 0; j < string_size; j++)
                         bwrite.Write(bread.ReadByte());
                     bread.BaseStream.Position++;
-                }                
+                }
             } else {
                 for (uint i = 0; i < strings; i++)
-                {                    
+                {
                     uint string_size = bread.ReadUInt32();//Bytes or Unicode symbools?
                     if (i < strings - 1) string_size++;
                     sy = bread.ReadByte();
@@ -487,7 +487,7 @@ namespace WinExtract
                 {
                     Console.WriteLine("String " + i + " of " + strings);
                     Console.SetCursorPosition(0, Console.CursorTop - 1);
-                }                                   
+                }
                 byte[] strByte = getSTRGEntryByte(bread.ReadUInt32());
                 for (uint j = 0; j < strByte.Length; j++)
                 {
