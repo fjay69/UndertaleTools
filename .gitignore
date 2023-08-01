@@ -1,19 +1,6 @@
-*.pdb
-WinExtract/.vs/WinExtract/v14/.suo
-run.bat
-/UndertaleTools.rar
-/.vs/ProjectSettings.json
-/.vs/slnx.sqlite
-/.vs/VSWorkspaceState.json
-/.vs/UndertaleTools/v15/.suo
-/WinExtract/.vs/WinExtract/v15/Server/sqlite3
-/GameMakerStringsEditor/.vs/GameMakerStringsEditor/v15/Server/sqlite3
-/TXTRCut/.vs/TXTRCut/v15
-/GameMakerStringsEditor/.vs/GameMakerStringsEditor/DesignTimeBuild
-/TXTRCut/.vs/TXTRCut/DesignTimeBuild
-/WinExtract/.vs/WinExtract/DesignTimeBuild/.dtbcache
-/.vs/UndertaleTools/v17
-/WinExtract/.vs/WinExtract/FileContentIndex
-/WinExtract/.vs/WinExtract/v17
-/WinExtract/WinExtract/WinExtract.csproj.user
-/WinExtract/WinExtract/WinExtract.csproj
+﻿################################################################################
+# Данный GITIGNORE-файл был автоматически создан Microsoft(R) Visual Studio.
+################################################################################
+
+/Release
+/.vs/UndertaleToolsGit/v17
