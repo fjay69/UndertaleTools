@@ -1,2 +1,3 @@
-*.pdb
-.vs/*
+bin/
+obj/
+Properties/

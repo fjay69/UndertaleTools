@@ -1,2 +1,3 @@
-*.pdb
-.vs/GameMakerStringsEditor/v14/.suo
+/bin/*
+/obj/*
+/Properties/*
