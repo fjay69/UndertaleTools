@@ -23,6 +23,7 @@ namespace WinExtract
         static bool correctTXTR = false;
         static bool unpackAUDO = false;
         static bool UTswitch = false;
+        static bool oldUndertale = false;
 
         struct endFiles
         {
@@ -44,7 +45,7 @@ namespace WinExtract
         {
             if (args.Length < 2)
             {
-                System.Console.WriteLine("Usage: winextract <output .win file> <input folder>");
+                Console.WriteLine("Usage: winextract <output .win file> <input folder>");
                 return;
             }
             string output_win = args[0];
@@ -60,6 +61,23 @@ namespace WinExtract
                 if (args[i] == "-strgWithBr") strgWithBr = true;
             }
             translatale = true;
+            
+            using (var stream = File.OpenRead(output_win))
+            {
+                var md5 = System.Security.Cryptography.MD5.Create();
+                byte[] hashByte = md5.ComputeHash(stream);
+                StringBuilder sBuilder = new StringBuilder();
+                for (int i = 0; i < hashByte.Length; i++)
+                {
+                    sBuilder.Append(hashByte[i].ToString("x2"));
+                }
+                string hashString = sBuilder.ToString();
+                if (hashString == "ee918f25277cefdc6a56860d9217c34d")//Undertale 1.08c RUS
+                {
+                    oldUndertale = true;
+                }
+            }
+
             uint full_size = (uint)new FileInfo(output_win).Length;
             bread = new BinaryReader(File.Open(output_win, FileMode.Open));
             Directory.CreateDirectory(input_folder + "CHUNK");
@@ -190,28 +208,29 @@ namespace WinExtract
                         uint bu = (uint)bread.BaseStream.Position;
                         bread.BaseStream.Position = chunk_offset;
 
-                        bwrite = new BinaryWriter(File.Open(input_folder + name, FileMode.Create));
-                        for (uint i = 0; i < chunk_size; i++)
-                            bwrite.Write(bread.ReadByte());
+                        bwrite = new BinaryWriter(File.Open(input_folder + name, FileMode.Create));                        
+                        bwrite.Write(bread.ReadBytes((int)chunk_size));
                         bwrite.Close();
                         bread.BaseStream.Position = bu;
 
                         if (chunk_name == "CODE")
                         {
-                            var md5 = System.Security.Cryptography.MD5.Create();
-                            var stream = File.OpenRead(input_folder + name);
-                            byte[] hashByte = md5.ComputeHash(stream);
-                            StringBuilder sBuilder = new StringBuilder();
-                            for (int i = 0; i < hashByte.Length; i++)
+                            using (var stream = File.OpenRead(input_folder + name))
                             {
-                                sBuilder.Append(hashByte[i].ToString("x2"));
-                            }
-                            string hashString = sBuilder.ToString();
-                            if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
-                            {
-                                //oldUndertale = true;
-                                unpackAUDO = true;
-                            }
+                                var md5 = System.Security.Cryptography.MD5.Create();
+                                byte[] hashByte = md5.ComputeHash(stream);
+                                StringBuilder sBuilder = new StringBuilder();
+                                for (int i = 0; i < hashByte.Length; i++)
+                                {
+                                    sBuilder.Append(hashByte[i].ToString("x2"));
+                                }
+                                string hashString = sBuilder.ToString();
+                                if (hashString == "ff44e9b4b88209202af1b73d7b187d5f")//Undertale 1.01
+                                {
+                                    //oldUndertale = true;
+                                    unpackAUDO = true;
+                                }
+                            }                            
                         }
                     }
                 else 
@@ -278,8 +297,7 @@ namespace WinExtract
                 bread.BaseStream.Position = files[i].offset;
 
                 bwrite = new BinaryWriter(File.Open(input_folder + folder + "\\" + name, FileMode.Create));
-                for (uint j = 0; j < files[i].size; j++)
-                    bwrite.Write(bread.ReadByte());
+                bwrite.Write(bread.ReadBytes((int)files[i].size));
                 bwrite.Close();
                 bread.BaseStream.Position = bu;
             }
@@ -345,7 +363,7 @@ namespace WinExtract
                 xfont.Add(new XElement("image", ""+font_name+".png"));
 
                 xmldoc.Add(xfont);
-                StreamWriter tpag = new StreamWriter(input_folder + "FONT\\" + font_name + ".font.gmx", false, System.Text.Encoding.UTF8);
+                StreamWriter tpag = new StreamWriter(input_folder + "FONT\\" + font_name + ".font.gmx", false, Encoding.UTF8);
                 tpag.Write(xmldoc.ToString());
                 tpag.Close();
             }
@@ -370,16 +388,16 @@ namespace WinExtract
             long bacup = bread.BaseStream.Position;
             bread.BaseStream.Position = FONT_offset;
             List<uint> fonts = collect_entries(false);
+            //Console.WriteLine("i\tx\ty\tw\th");
             for (int f = 0; f < fonts.Count - 1; f++)
             {
                 bread.BaseStream.Position = fonts[f] + 28;
                 spriteInfo sprt = getSpriteInfo(bread.ReadUInt32());
-                Bitmap texture;
-                using (var tempbmp = new Bitmap(Image.FromFile(input_folder + "TXTR\\" + sprt.i + ".png")))
-                {
-                    texture = new Bitmap(tempbmp);
-                    Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat);
-                    cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
+                //Console.WriteLine(""+sprt.i+"\t"+ sprt.x + "\t" + sprt.y + "\t" + sprt.w + "\t" + sprt.h);
+                using (var texture = new Bitmap(Image.FromFile(input_folder + "TXTR\\" + sprt.i + ".png")))
+                {                    
+                    using (Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat)) 
+                        cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");                    
                 }
             }
             bread.BaseStream.Position = bacup;
@@ -396,7 +414,8 @@ namespace WinExtract
             result.h = bread.ReadUInt16();
             bread.BaseStream.Position += 12;
             result.i = bread.ReadUInt16();
-            //if(result.i>20) result.i--;//Some old-versions
+            if(oldUndertale)
+                if(result.i>20) result.i--;//Some old versions
             bread.BaseStream.Position = bacup;
             return result;
         }
@@ -407,9 +426,7 @@ namespace WinExtract
             bread.BaseStream.Position = str_offset-4;//???
             
             uint string_size = bread.ReadUInt32();
-            byte[] bytes = new byte[string_size];
-            for (uint j = 0; j < string_size; j++)
-                bytes[j] = bread.ReadByte();
+            byte[] bytes = bread.ReadBytes((int)string_size);             
             bread.BaseStream.Position = bacup;
             return System.Text.Encoding.UTF8.GetString(bytes);
         }
@@ -446,15 +463,14 @@ namespace WinExtract
                 for (uint i = 0; i < strings; i++)
                 {
                     uint string_size = bread.ReadUInt32();//00 after string
-                    bwrite.Write(string_size);
-                    for (uint j = 0; j < string_size; j++)
-                        bwrite.Write(bread.ReadByte());
+                    bwrite.Write(string_size);                    
+                    bwrite.Write(bread.ReadBytes((int)string_size));
                     bread.BaseStream.Position++;
                 }
             } else {
                 for (uint i = 0; i < strings; i++)
                 {
-                    uint string_size = bread.ReadUInt32();//Bytes or Unicode symbools?
+                    uint string_size = bread.ReadUInt32();//Bytes or Unicode symbols?
                     if (i < strings - 1) string_size++;
                     sy = bread.ReadByte();
                     for (; sy!=0x00; sy = bread.ReadByte()) {
