@@ -1,12 +1,5 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.IO;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 
 namespace GameMakerStringsEditor
@@ -17,11 +10,11 @@ namespace GameMakerStringsEditor
 
         public Form1()
         {
-            InitializeComponent();        
+            InitializeComponent();
         }
 
         private void button1_Click(object sender, EventArgs e)
-        {            
+        {
             var winFileDialog = new OpenFileDialog();
             winFileDialog.Filter = "String data (*.strg) | *.strg";
 
@@ -36,7 +29,7 @@ namespace GameMakerStringsEditor
                 long filelength = bread.BaseStream.Length;
 
                 while (bread.BaseStream.Position < filelength-1)
-                {                    
+                {
                     uint string_size = bread.ReadUInt32();
                     byte[] bytes = new byte[string_size];
                     for (uint j = 0; j < string_size; j++)

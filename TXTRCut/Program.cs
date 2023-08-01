@@ -1,23 +1,19 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
+using System.IO;
 
 namespace TXTRCut
 {
     class Program
     {
         struct spriteInfo
-        {            
+        {
             public string spriteName;
             public int x;
             public int y;
             public int w;
             public int h;
-            public int i;            
+            public int i;
         }
 
         static void Main(string[] args)
@@ -28,7 +24,6 @@ namespace TXTRCut
 
             if (File.Exists(output_folder + "SPRT.txt"))
             {
-                Bitmap cropped = null;
                 //Prepare textures
                 string[] texturespath = Directory.GetFiles(output_folder + "TXTR\\");
                 Bitmap[] textures = new Bitmap[texturespath.Length];
@@ -50,17 +45,9 @@ namespace TXTRCut
                     newFont.w = Convert.ToInt32(par[3]);
                     newFont.h = Convert.ToInt32(par[4]);
                     newFont.i = Convert.ToInt32(par[5]);
-                    //try
-                    //{
-                        cropped = textures[newFont.i].Clone(new Rectangle((int)newFont.x, (int)newFont.y, (int)newFont.w, (int)newFont.h), textures[newFont.i].PixelFormat);
+
+                    using (Bitmap cropped = textures[newFont.i].Clone(new Rectangle((int)newFont.x, (int)newFont.y, (int)newFont.w, (int)newFont.h), textures[newFont.i].PixelFormat))
                         cropped.Save(output_folder + "Sprites\\" + newFont.spriteName + ".png");
-                        cropped.Dispose();
-                    //} finally {
-
-                    //    if(cropped != null) cropped.Dispose();
-                    //}
-                    //textures[newFont.i - 1].Dispose();
-
                 }
             }
         }

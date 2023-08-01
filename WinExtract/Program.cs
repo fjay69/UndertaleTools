@@ -208,7 +208,7 @@ namespace WinExtract
                         uint bu = (uint)bread.BaseStream.Position;
                         bread.BaseStream.Position = chunk_offset;
 
-                        bwrite = new BinaryWriter(File.Open(input_folder + name, FileMode.Create));                        
+                        bwrite = new BinaryWriter(File.Open(input_folder + name, FileMode.Create));
                         bwrite.Write(bread.ReadBytes((int)chunk_size));
                         bwrite.Close();
                         bread.BaseStream.Position = bu;
@@ -230,10 +230,10 @@ namespace WinExtract
                                     //oldUndertale = true;
                                     unpackAUDO = true;
                                 }
-                            }                            
+                            }
                         }
                     }
-                else 
+                else
                 {
                     recordFiles(filesToCreate, chunk_name);
                     
@@ -395,9 +395,9 @@ namespace WinExtract
                 spriteInfo sprt = getSpriteInfo(bread.ReadUInt32());
                 //Console.WriteLine(""+sprt.i+"\t"+ sprt.x + "\t" + sprt.y + "\t" + sprt.w + "\t" + sprt.h);
                 using (var texture = new Bitmap(Image.FromFile(input_folder + "TXTR\\" + sprt.i + ".png")))
-                {                    
+                {
                     using (Bitmap cropped = texture.Clone(new Rectangle((int)sprt.x, (int)sprt.y, (int)sprt.w, (int)sprt.h), texture.PixelFormat)) 
-                        cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");                    
+                        cropped.Save(input_folder + "FONT\\" + fontNames[f] + ".png");
                 }
             }
             bread.BaseStream.Position = bacup;
@@ -426,7 +426,7 @@ namespace WinExtract
             bread.BaseStream.Position = str_offset-4;//???
             
             uint string_size = bread.ReadUInt32();
-            byte[] bytes = bread.ReadBytes((int)string_size);             
+            byte[] bytes = bread.ReadBytes((int)string_size);
             bread.BaseStream.Position = bacup;
             return System.Text.Encoding.UTF8.GetString(bytes);
         }
@@ -463,7 +463,7 @@ namespace WinExtract
                 for (uint i = 0; i < strings; i++)
                 {
                     uint string_size = bread.ReadUInt32();//00 after string
-                    bwrite.Write(string_size);                    
+                    bwrite.Write(string_size);
                     bwrite.Write(bread.ReadBytes((int)string_size));
                     bread.BaseStream.Position++;
                 }
